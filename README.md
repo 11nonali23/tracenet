@@ -7,10 +7,11 @@ Each peer has a couchdb instance.
 - [go](https://go.dev) --> It's the only language supported
 - [docker](https://www.docker.com)
 - [docker-compose](https://docs.docker.com/compose/)
+- [Hyperledger Fabric 2.2](https://hyperledger-fabric.readthedocs.io/en/release-2.2/install.html)
+- [npm](https://www.npmjs.com) --> only for testing with caliper
 - [jq](https://stedolan.github.io/jq/)
 
 # Running and working on the netowrk
-> :warning: **This netowrk has ARM binaries**: if you have x86 processor, just replace this binaries with the x86 one.
 
 **Script permissions**
 ```
@@ -34,7 +35,7 @@ This command will:
 
 **Query the network**
 ```
-./main.sh query
+./main.sh chaincode query
 ```
 
 This command will do a sample query on the network
