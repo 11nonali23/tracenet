@@ -1,0 +1,76 @@
+name: Fabric
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+  sutOptions:
+    mutualTls: false  
+  # command:
+  #   start: docker-compose -f network/fabric-v1.1/2obs0peergoleveldb/docker-compose-tls.yaml up -d;sleep 3s
+  #   end: docker-compose -f network/fabric-v1.1/2obs0peergoleveldb/docker-compose-tls.yaml down;docker rm $(docker ps -aq);docker rmi $(docker images dev* -q)
+
+info:
+  Version: 1.1.0
+  Size: 2 Orgs
+  Orderer: Raft
+  Distribution: Single Host
+  StateDB: CouchDB
+
+channels:
+  - channelName: channel1
+    create:
+      buildTransaction:
+        capabilities: []
+        #consortium: 'SampleConsortium'
+        msps: ['rec0MSP', 'obs0MSP']
+        version: 0
+    # Array of contracts to be installed/instantiated on the named channel and available for use by the workload module
+    contracts:
+    - id: sample
+      contractID: sample
+      install:
+        version: v0
+        language: golang
+        path: ../../chaincode
+        #metadataPath: src/sample/go/metadata
+      instantiate:
+        initFunction: init
+        initArguments: []
+        endorsementPolicy:
+          identities:
+          - role:
+              name: member
+              mspId: rec0MSP
+          - role:
+              name: member
+              mspId: obs0MSP
+          policy:
+            2-of:
+            - signed-by: 0
+            - signed-by: 1
+
+organizations:
+  - mspid: rec0MSP
+    identities:
+      certificates:
+      - name: 'Admin'
+        admin: true
+        clientPrivateKey:
+          path: '../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/keystore/priv_sk'
+        clientSignedCert:
+          path: '../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/signcerts/Admin@rec0.tracenet.com-cert.pem'
+    connectionProfile:
+      #path: './rec0ConnectionProfile.yaml'
+      discover: true
+  - mspid: obs0MSP
+    connectionProfile:
+    identities:
+      certificates:
+      - name: 'Admin'
+        admin: true
+        clientPrivateKey:
+          path: '../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/keystore/priv_sk'
+        clientSignedCert:
+          path: '../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/signcerts/Admin@obs0.tracenet.com-cert.pem'
+      #path: './obs0ConnectionProfile.json'
+      discover: true
