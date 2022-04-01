@@ -60,10 +60,9 @@ organizations:
         clientSignedCert:
           path: '../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/signcerts/Admin@rec0.tracenet.com-cert.pem'
     connectionProfile:
-      #path: './rec0ConnectionProfile.yaml'
+      path: '../organizations/peerOrganizations/rec0.tracenet.com/connection-rec0.yaml'
       discover: true
   - mspid: obs0MSP
-    connectionProfile:
     identities:
       certificates:
       - name: 'Admin'
@@ -72,5 +71,6 @@ organizations:
           path: '../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/keystore/priv_sk'
         clientSignedCert:
           path: '../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/signcerts/Admin@obs0.tracenet.com-cert.pem'
-      #path: './obs0ConnectionProfile.json'
-      discover: true
+    connectionProfile:
+          path: '../organizations/peerOrganizations/obs0.tracenet.com/connection-obs0.yaml'
+          discover: true

@@ -1,45 +1,62 @@
 'use strict';
 
-module.exports.info = 'Sample Workload';
+const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
 
-const { v1: uuidv4 } = require('uuid');
-
-let txCountPerBatch;
-let blockchain, context;
-
-module.exports.init = function (blockchain, context, args) {
-
-    if (!args.hasOwnProperty('txCountPerBatch')) {
-        args.txCountPerBatch = 1;
+class MyWorkload extends WorkloadModuleBase {
+    constructor() {
+        super();
     }
-    txCountPerBatch = args.txCountPerBatch;
-    blockchain = blockchain;
-    context = context;
 
-    return Promise.resolve();
-};
+    async initializeWorkloadModule(workerIndex, totalWorkers, roundIndex, roundArguments, sutAdapter, sutContext) {
+        await super.initializeWorkloadModule(workerIndex, totalWorkers, roundIndex, roundArguments, sutAdapter, sutContext);
 
-function generateWorkload() {
-    let workload = [];
-    for (let i = 0; i < txCountPerBatch; i++) {
-        workload.push({
-            chaincodeFunction: 'CreateAsset',
-            chaincodeArguments: [uuidv4(), "white", 100, "Andrea", 90],
-        });
+        for (let i=0; i<this.roundArguments.assets; i++) {
+            const assetID = `${this.workerIndex}_${i}`;
+            console.log(`Worker ${this.workerIndex}: Creating asset ${assetID}`);
+            const request = {
+                contractId: this.roundArguments.contractId,
+                contractFunction: 'CreateAsset',
+                invokerIdentity: 'Admin',
+                contractArguments: [assetID,'blue','20','penguin','500'],
+                readOnly: false
+            };
+
+            await this.sutAdapter.sendRequests(request);
+        }
     }
-    return workload;
+
+    async submitTransaction() {
+        const randomId = Math.floor(Math.random()*this.roundArguments.assets);
+        const myArgs = {
+            contractId: this.roundArguments.contractId,
+            contractFunction: 'ReadAsset',
+            invokerIdentity: 'Admin',
+            contractArguments: [`${this.workerIndex}_${randomId}`],
+            readOnly: true
+        };
+
+        await this.sutAdapter.sendRequests(myArgs);
+    }
+
+    async cleanupWorkloadModule() {
+        for (let i=0; i<this.roundArguments.assets; i++) {
+            const assetID = `${this.workerIndex}_${i}`;
+            console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
+            const request = {
+                contractId: this.roundArguments.contractId,
+                contractFunction: 'DeleteAsset',
+                invokerIdentity: 'Admin',
+                contractArguments: [assetID],
+                readOnly: false
+            };
+
+            await this.sutAdapter.sendRequests(request);
+        }
+    }
 }
 
-module.exports.run = function () {
-    try {
-        let args = generateWorkload();
-        return blockchain.invokeSmartContract(context, 'sample', '1.0', args);
-    } catch (err) {
-        console.log(err)
-    }
+function createWorkloadModule() {
+    return new MyWorkload();
+}
 
-};
-
-module.exports.end = function () {
-    return Promise.resolve();
-};
+module.exports.createWorkloadModule = createWorkloadModule;
