@@ -16,7 +16,7 @@ organizations:
     - ca.${ORG}.tracenet.com
 peers:
   peer0.${ORG}.tracenet.com:
-    url: grpcs://localhost:${P0PORT}
+    url: grpcs://localhost:${PEER0_PORT}
     tlsCACerts:
       pem: |
           ${PEERPEM}

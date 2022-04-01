@@ -28,7 +28,7 @@ This command will:
 - down the network and clean
 - initialization with cryptogen
 - start the network with docker compose
-- create a channel named "channel1"
+- create a channel named "mychannel"
 - join the channel by the two orgs (Org1, Org2)
 - set the anchor peer
 - deploy a sample chaincode

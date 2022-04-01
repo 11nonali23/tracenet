@@ -17,7 +17,7 @@ info:
   StateDB: CouchDB
 
 channels:
-  - channelName: channel1
+  - channelName: mychannel
     create:
       buildTransaction:
         capabilities: []
