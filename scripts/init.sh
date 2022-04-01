@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. $SCRIPTS_DIR/utils.sh
+. $SCRIPTS_DIR/utils/output.sh
 
 function generateOrgs() {
     configPath=$ORG_CONFIG_PATH/crypto-config.yaml
@@ -17,6 +17,9 @@ function generateOrgs() {
     if [ $res -ne 0 ]; then
         fatalln "Failed to generate certificates..."
     fi
+
+    . $SCRIPTS_DIR/utils/connectionProfile.sh
+
 }
 
 function createSystemGenesisBlock() {
