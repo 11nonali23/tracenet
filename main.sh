@@ -74,12 +74,15 @@ function commitChaincode() {
 # }
 
 function invokeChaincodeInit() {
-    fcnCall='{"function":"'initLedger'","Args":[]}'
+    id="c${RANDOM}"
+    startDate="2022-05-02T15:02:40.628Z"
+    endDate="2023-05-02T15:02:40.628Z"
+    fcnCall='{"function":"'CreateCampaign'","Args":["'${id}'","'Campaign1'","'Rec0'","'${startDate}'","'${endDate}'"]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
 function queryChaincode() {
-    fcnCall='{"Args":["org.hyperledger.fabric:GetMetadata"]}'
+    fcnCall='{"function":"'ReadAllCampaigns'","Args":[]}'
 
     $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
 }
@@ -118,7 +121,6 @@ if [ $MODE = "network" ]; then
         approveChaincode
         commitChaincode
         invokeChaincodeInit
-        queryChaincode
     else
         echo "Unsupported $MODE $SUB_MODE command."
     fi
@@ -158,10 +160,16 @@ elif [ $MODE = "chaincode" ]; then
     #     else
     #         echo "Unsuported '$MODE $SUB_MODE $SUB_SUB_MODE' command."
     #     fi
+
     elif [ $SUB_MODE = "invoke-init" ]; then
         invokeChaincodeInit
     elif [ $SUB_MODE = "query" ]; then
         queryChaincode
+    elif [ $SUB_MODE = "reinstall" ]; then
+        packageChaincode
+        installChaincode
+        approveChaincode
+        commitChaincode
     else
         echo "Unsupported '$MODE $SUB_MODE' command."
     fi
