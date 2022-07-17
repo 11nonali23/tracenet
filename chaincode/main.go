@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
@@ -16,11 +17,11 @@ type SmartContract struct {
 
 // Asset describes basic details of what makes up a simple asset
 type Campaign struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Recipient  string `json:"recipient"`
-	startTime  string `json:"timestamp`
-	endTime    string `json:"timestamp`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Recipient string `json:"recipient"`
+	StartTime string `json:"startTime"`
+	EndTime   string `json:"endTime"`
 }
 
 func (s *SmartContract) Test(ctx contractapi.TransactionContextInterface) error {
@@ -40,11 +41,11 @@ func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterfa
 	}
 
 	campaign := Campaign{
-		ID:         id,
-		Name:       name,
-		Recipient:  recipient,
-		startTime:  startTime,
-		endTime:    endTime,
+		ID:        id,
+		Name:      name,
+		Recipient: recipient,
+		StartTime: startTime,
+		EndTime:   endTime,
 	}
 
 	campaignJSON, err := json.Marshal(campaign)
@@ -91,8 +92,9 @@ func (s *SmartContract) ReadAllCampaigns(ctx contractapi.TransactionContextInter
 	return campaigns, nil
 }
 
-func (s *SmartContract) ReadCampaignsByTimestamp(ctx contractapi.TransactionContextInterface, startTime string, endTime string) ([]*Campaign, error) {
-	queryString := fmt.Sprintf(`{"selector":{"timestamp":{"$gte": "%s","$lte": "%s"}}}`, startTime, endTime)
+func (s *SmartContract) GetAvailableCampaings(ctx contractapi.TransactionContextInterface) ([]*Campaign, error) {
+	currentTime := time.Now().Format(time.RFC3339)
+	queryString := fmt.Sprintf(`{"selector":{"endTime":{"$gt": "%s"}}}`, currentTime)
 
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 	if err != nil {
@@ -123,7 +125,6 @@ func (s *SmartContract) ReadCampaignsByTimestamp(ctx contractapi.TransactionCont
 
 	return campaigns, nil
 }
-
 
 func main() {
 	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})

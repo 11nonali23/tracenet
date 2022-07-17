@@ -85,6 +85,10 @@ function queryChaincode() {
     fcnCall='{"function":"'ReadAllCampaigns'","Args":[]}'
 
     $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
+
+    fcnCall='{"function":"'GetAvailableCampaings'","Args":[]}'
+
+    $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
 }
 
 function initCaliper() {
