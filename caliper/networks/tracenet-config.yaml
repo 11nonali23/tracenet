@@ -26,8 +26,8 @@ channels:
         version: 0
     # Array of contracts to be installed/instantiated on the named channel and available for use by the workload module
     contracts:
-    - id: sample
-      contractID: sample
+    - id: main
+      contractID: main
       install:
         version: v0
         language: golang
@@ -72,5 +72,5 @@ organizations:
         clientSignedCert:
           path: '../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/signcerts/Admin@obs0.tracenet.com-cert.pem'
     connectionProfile:
-          path: '../organizations/peerOrganizations/obs0.tracenet.com/connection-obs0.yaml'
-          discover: true
+      path: '../organizations/peerOrganizations/obs0.tracenet.com/connection-obs0.yaml'
+      discover: true
