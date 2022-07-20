@@ -74,7 +74,7 @@ function commitChaincode() {
 # }
 
 function invokeChaincodeInit() {
-    id="c${RANDOM}"
+    id="c1"
     startDate="2022-05-02T15:02:40.628Z"
     endDate="2023-05-02T15:02:40.628Z"
     fcnCall='{"function":"'CreateCampaign'","Args":["'${id}'","'Campaign1'","'Rec0'","'${startDate}'","'${endDate}'"]}'
@@ -89,6 +89,15 @@ function queryChaincode() {
     fcnCall='{"function":"'GetAvailableCampaings'","Args":[]}'
 
     $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
+}
+
+function shareKG() {
+    campaignId="c1"
+    ownerId="o1"
+    KG="abcdefghi"
+    privacyPreferences="5"
+    fcnCall='{"function":"'ShareKnowledgeGraph'","Args":["'${campaignId}'","'${ownerId}'","'${KG}'","'${privacyPreferences}'"]}'
+    $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
 function initCaliper() {
@@ -169,6 +178,8 @@ elif [ $MODE = "chaincode" ]; then
         invokeChaincodeInit
     elif [ $SUB_MODE = "query" ]; then
         queryChaincode
+    elif [ $SUB_MODE = "share-KG" ]; then
+        shareKG
     elif [ $SUB_MODE = "reinstall" ]; then
         packageChaincode
         installChaincode

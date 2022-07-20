@@ -17,11 +17,19 @@ type SmartContract struct {
 
 // Asset describes basic details of what makes up a simple asset
 type Campaign struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Recipient string `json:"recipient"`
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
+	ID        		string `json:"id"`
+	Name      		string `json:"name"`
+	Recipient 		string `json:"recipient"`
+	StartTime 		string `json:"startTime"`
+	EndTime			string `json:"endTime"`
+	Owner			Owner  `json:"owner"`
+	//TODO add viewers
+}
+
+type Owner struct {
+	ID 					string `json:"ID"`
+	KnowledgeGraph		string `json:"KnowledgeGraph"`
+	privacyPreferences	string `json:"privacyPreferences"`
 }
 
 func (s *SmartContract) Test(ctx contractapi.TransactionContextInterface) error {
@@ -33,7 +41,7 @@ func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterfa
 	existing, err := ctx.GetStub().GetState(id)
 
 	if err != nil {
-		return errors.New("Unable to read the world state")
+		return errors.New("Unable to read the asset state")
 	}
 
 	if existing != nil {
@@ -124,6 +132,47 @@ func (s *SmartContract) GetAvailableCampaings(ctx contractapi.TransactionContext
 	resultsIterator.Close()
 
 	return campaigns, nil
+}
+
+func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextInterface, campaignId string, ownerId string, knowledgeGraph string, privacyPreferences string) error {
+	queryString := fmt.Sprintf(`{"selector":{"id":{"$eq": "%s"}}}`, campaignId)
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return err
+	}
+
+	defer resultsIterator.Close()
+
+	queryResponse, err := resultsIterator.Next()
+	if err != nil {
+		return err
+	}
+
+	var campaign Campaign
+	err = json.Unmarshal(queryResponse.Value, &campaign)
+	if err != nil {
+		return err
+	}
+
+	owner := Owner{
+		ID:					ownerId,			
+		KnowledgeGraph:		knowledgeGraph,	
+		privacyPreferences:	privacyPreferences,
+	}
+	campaign.Owner = owner
+
+	campaignJSON, err := json.Marshal(campaign)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(campaignId, campaignJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {

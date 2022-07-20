@@ -3,7 +3,7 @@
 . $SCRIPTS_DIR/utils/output.sh
 . $SCRIPTS_DIR/utils/environment.sh
 
-function chaincodeInovkeInit() {
+function doOperation() {
     local chaincodeName=$1
     local channelName=$2
     local orgTypes=$3
@@ -29,4 +29,4 @@ ORG_NUM=$4
 PEER_NUM=$5
 fcnCall=$6
 
-chaincodeInovkeInit $CHAINCODE_NAME $CHANNEL_NAME $ORG_TYPES $ORG_NUM $PEER_NUM $fcnCall
+doOperation $CHAINCODE_NAME $CHANNEL_NAME $ORG_TYPES $ORG_NUM $PEER_NUM $fcnCall
