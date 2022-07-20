@@ -1,5 +1,5 @@
 # Tracenet
-This network has 2 orgs and 1 orderer.
+An Hyperledger Fabric network. It has 2 orgs and 1 orderer.
 For the certificates generation I used cryptogen, since it's a testing network.
 Each peer has a couchdb instance.
 
