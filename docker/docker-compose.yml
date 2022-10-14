@@ -64,47 +64,13 @@ services:
         networks:
             - test
 
-    peer0.rec0.tracenet.com:
-        container_name: peer0.rec0.tracenet.com
-        extends:
-            file: docker-compose-base.yml
-            service: peer-base
-        ports:
-            - 1050:7051
-        networks:
-            - test
-        depends_on:
-            - orderer.${COMPOSE_PROJECT_NAME}.com
-            - crypto.tracenet.com
-            - couchdb0.rec0.tracenet.com
-        environment:
-            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.rec0.tracenet.com:5984
-            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
-
-            - CORE_PEER_ID=peer0.rec0.${COMPOSE_PROJECT_NAME}.com
-            - CORE_PEER_ADDRESS=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
-            - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-            - CORE_PEER_CHAINCODEADDRESS=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7052
-            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-            - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
-            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
-            - CORE_PEER_LOCALMSPID=rec0MSP
-
-        volumes:
-            - /var/run/docker.sock:/host/var/run/docker.sock
-            - ../organizations/peerOrganizations/rec0.${PROJECT_NAME}.com/peers/peer0.rec0.${PROJECT_NAME}.com/msp:/etc/hyperledger/fabric/msp
-            - ../organizations/peerOrganizations/rec0.${PROJECT_NAME}.com/peers/peer0.rec0.${PROJECT_NAME}.com/tls:/etc/hyperledger/fabric/tls
-            # - peer0.rec0.${PROJECT_NAME}.com:/var/hyperledger/production
-
     peer0.obs0.tracenet.com:
         container_name: peer0.obs0.tracenet.com
         extends:
             file: docker-compose-base.yml
             service: peer-base
         ports:
-            - 2050:7051
+            - 1050:7051
         networks:
             - test
         depends_on:
@@ -132,3 +98,36 @@ services:
             # - peer0.obs0.${PROJECT_NAME}.com:/var/hyperledger/production
             # - ../volumes/peer0.obs0.${PROJECT_NAME}.com:/var/hyperledger/production
 
+    peer0.rec0.tracenet.com:
+        container_name: peer0.rec0.tracenet.com
+        extends:
+            file: docker-compose-base.yml
+            service: peer-base
+        ports:
+            - 2050:7051
+        networks:
+            - test
+        depends_on:
+            - orderer.${COMPOSE_PROJECT_NAME}.com
+            - crypto.tracenet.com
+            - couchdb0.rec0.tracenet.com
+        environment:
+            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.rec0.tracenet.com:5984
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+            - CORE_PEER_ID=peer0.rec0.${COMPOSE_PROJECT_NAME}.com
+            - CORE_PEER_ADDRESS=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+            - CORE_PEER_CHAINCODEADDRESS=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7052
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_LOCALMSPID=rec0MSP
+
+        volumes:
+            - /var/run/docker.sock:/host/var/run/docker.sock
+            - ../organizations/peerOrganizations/rec0.${PROJECT_NAME}.com/peers/peer0.rec0.${PROJECT_NAME}.com/msp:/etc/hyperledger/fabric/msp
+            - ../organizations/peerOrganizations/rec0.${PROJECT_NAME}.com/peers/peer0.rec0.${PROJECT_NAME}.com/tls:/etc/hyperledger/fabric/tls
+            # - peer0.rec0.${PROJECT_NAME}.com:/var/hyperledger/production

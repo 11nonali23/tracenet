@@ -104,8 +104,8 @@ function initCaliper() {
     $SCRIPTS_DIR/caliper.sh "init" $CALIPER_VERSION $FABRIC_VERSION
 }
 
-function caliperLaunchManager() {
-    $SCRIPTS_DIR/caliper.sh "launch-manager" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_BENCH_CONFIG
+function caliperLaunch() {
+    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_BENCH_CONFIG
 }
 
 function clearCaliper() {
@@ -193,8 +193,8 @@ elif [ $MODE = "caliper" ]; then
     SUB_MODE=$2
     if [ $SUB_MODE = "init" ]; then
         initCaliper
-    elif [ $SUB_MODE = "launch-manager" ]; then
-        caliperLaunchManager
+    elif [ $SUB_MODE = "launch" ]; then
+        caliperLaunch
     elif [ $SUB_MODE = "clear" ]; then
         clearCaliper
     else

@@ -10,12 +10,10 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-// SmartContract provides functions for managing an Asset
 type SmartContract struct {
 	contractapi.Contract
 }
 
-// Asset describes basic details of what makes up a simple asset
 type Campaign struct {
 	ID        		string `json:"id"`
 	Name      		string `json:"name"`
@@ -36,16 +34,15 @@ func (s *SmartContract) Test(ctx contractapi.TransactionContextInterface) error 
 	return nil
 }
 
-// Create a new campaign
 func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterface, id string, name string, recipient string, startTime string, endTime string) error {
-	existing, err := ctx.GetStub().GetState(id)
-
+	exists, err := s.CampaignExists(ctx, id)
+	
 	if err != nil {
-		return errors.New("Unable to read the asset state")
+		return err
 	}
-
-	if existing != nil {
-		return fmt.Errorf("Cannot create asset since %s id already exists", id)
+	
+	if exists {
+		return fmt.Errorf("Error while creating campaign: the campaign %s already exist", id)
 	}
 
 	campaign := Campaign{
@@ -68,6 +65,30 @@ func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterfa
 	}
 
 	return nil
+}
+
+func (s *SmartContract) DeleteCampaign(ctx contractapi.TransactionContextInterface, id string) error {
+	exists, err := s.CampaignExists(ctx, id)
+	
+	if err != nil {
+		return err
+	}
+	
+	if !exists {
+		return fmt.Errorf("Error while deleting campaign: the campaign %s does not exist", id)
+	}
+
+	return ctx.GetStub().DelState(id)
+}
+
+func (s *SmartContract) CampaignExists(ctx contractapi.TransactionContextInterface, campaignID string) (bool, error) {
+	campaignBytes, err := ctx.GetStub().GetState(campaignID)
+
+	if err != nil {
+		return false, fmt.Errorf("Failed to read campaign %s from world state. %v", campaignID, err)
+	}
+
+	return campaignBytes != nil, nil
 }
 
 func (s *SmartContract) ReadAllCampaigns(ctx contractapi.TransactionContextInterface) ([]*Campaign, error) {
@@ -173,6 +194,10 @@ func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextIn
 	}
 
 	return nil
+}
+
+func (s *SmartContract) GetAvailableCampaings(ctx contractapi.TransactionContextInterface) (bool, error) {
+
 }
 
 func main() {

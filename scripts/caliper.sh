@@ -45,7 +45,7 @@ CALIPER_BENCH_CONFIG=$6
 
 if [ $MODE = "init" ]; then
     initCaliper
-elif [ $MODE = "launch-manager" ]; then
+elif [ $MODE = "launch" ]; then
     caliperLaunchManager
 elif [ $MODE = "clear" ]; then
     clearCaliper
