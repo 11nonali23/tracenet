@@ -100,6 +100,11 @@ function shareKG() {
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
+function verifyProof() {
+    fcnCall='{"function":"'VerifyProof'","Args":[]}'
+    $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+}
+
 function initCaliper() {
     $SCRIPTS_DIR/caliper.sh "init" $CALIPER_VERSION $FABRIC_VERSION
 }
@@ -180,6 +185,8 @@ elif [ $MODE = "chaincode" ]; then
         queryChaincode
     elif [ $SUB_MODE = "share-KG" ]; then
         shareKG
+    elif [ $SUB_MODE = "verify-proof" ]; then
+        verifyProof
     elif [ $SUB_MODE = "reinstall" ]; then
         packageChaincode
         installChaincode

@@ -2,7 +2,12 @@ module tracenet.com/main
 
 go 1.19
 
-require github.com/hyperledger/fabric-contract-api-go v1.1.1
+require (
+	github.com/11nonali23/elliptic-curve-ZKP-equality v0.0.0-20221014092738-20c53ec4117e
+	github.com/bwesterb/go-ristretto v1.2.2
+	github.com/hyperledger/fabric-contract-api-go v1.1.1
+	github.com/tuhoag/elliptic-curve-cryptography-go v0.0.4
+)
 
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect

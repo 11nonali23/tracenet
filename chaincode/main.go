@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"time"
 
+	chaum_pedersen "github.com/11nonali23/elliptic-curve-ZKP-equality/chaum-pedersen"
+	"github.com/bwesterb/go-ristretto"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"github.com/tuhoag/elliptic-curve-cryptography-go/pedersen"
 )
 
 type SmartContract struct {
@@ -196,8 +198,36 @@ func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextIn
 	return nil
 }
 
-func (s *SmartContract) GetAvailableCampaings(ctx contractapi.TransactionContextInterface) (bool, error) {
 
+//TODO dummy function for now
+func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface) (bool, error) {
+	var H ristretto.Point
+	H.Rand(); 
+	var m1, m2 ristretto.Scalar
+	m1.Rand()
+	m2.Set(&m1)
+	C1, r1 := generateCommitment(&H, &m1)
+	C2, r2 := generateCommitment(&H, &m2)
+
+	var proof chaum_pedersen.PedersenEquality
+	proof.Prove(&H, &m1, r1, r2)
+
+	verified := proof.Verify(C1, C2)
+	if verified == false {
+		log.Panicf("Proofs are equal but they are not verified")
+	} else {
+		fmt.Println("The proof is correctly verified as expected :)")
+	}
+	return verified, nil
+}
+
+func generateCommitment(H *ristretto.Point, m *ristretto.Scalar) (*ristretto.Point, *ristretto.Scalar) {
+	var r ristretto.Scalar
+	r.Rand()
+	
+	C := pedersen.CommitTo(H, m, &r)
+
+	return C, &r
 }
 
 func main() {
