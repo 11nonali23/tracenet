@@ -4,20 +4,48 @@ test:
     type: local
     number: 1
   rounds: 
-    - label: Create Campaign
-      txNumber: 2000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 100
-      workload:
-        module: benchmarks/workload/createCampaign.js
-        arguments:
-          assets: 500
-          max: 10
-          min: 3
-          tx: 2000
-          contractId: main
+    # - label: Create Campaign
+    #   txNumber: 2000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 100
+    #   workload:
+    #     module: benchmarks/workload/createCampaign.js
+    #     arguments:
+    #       assets: 500
+    #       max: 10
+    #       min: 3
+    #       tx: 2000
+    #       contractId: main
+    # - label: Share KG
+    #   txNumber: 2000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 100
+    #   workload:
+    #     module: benchmarks/workload/shareKG.js
+    #     arguments:
+    #       assets: 500
+    #       max: 10
+    #       min: 3
+    #       tx: 2000
+    #       contractId: main
+    # - label: Share KG
+    #   txNumber: 2000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 100
+    #   workload:
+    #     module: benchmarks/workload/retrieveEnvelope.js
+    #     arguments:
+    #       assets: 500
+    #       max: 10
+    #       min: 3
+    #       tx: 2000
+    #       contractId: main
     - label: Verify Proof
       txNumber: 2000
       rateControl:

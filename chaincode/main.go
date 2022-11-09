@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	chaum_pedersen "github.com/11nonali23/elliptic-curve-ZKP-equality/chaum-pedersen"
 	"github.com/bwesterb/go-ristretto"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/tuhoag/elliptic-curve-cryptography-go/pedersen"
@@ -19,30 +18,26 @@ type SmartContract struct {
 type Campaign struct {
 	ID        		string `json:"id"`
 	Name      		string `json:"name"`
-	Recipient 		string `json:"recipient"`
 	StartTime 		string `json:"startTime"`
 	EndTime			string `json:"endTime"`
-	Owner			Owner  `json:"owner"`
-	//TODO add viewers
 }
 
 type Owner struct {
-	ID 					string `json:"ID"`
-	KnowledgeGraph		string `json:"KnowledgeGraph"`
-	privacyPreferences	string `json:"privacyPreferences"`
+	ID					string `json:"KnowledgeGraph"`
+	CampaignID			string `json:"campaignID"`
+	Envelope			string `json:"Envelope"`
+	PrivacyPreference	string `json:"privacyPreference"`
 }
 
 func (s *SmartContract) Test(ctx contractapi.TransactionContextInterface) error {
 	return nil
 }
 
-func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterface, id string, name string, recipient string, startTime string, endTime string) error {
+func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterface, id string, name string, startTime string, endTime string) error {
 	exists, err := s.CampaignExists(ctx, id)
-	
 	if err != nil {
 		return err
 	}
-	
 	if exists {
 		return fmt.Errorf("Error while creating campaign: the campaign %s already exist", id)
 	}
@@ -50,7 +45,6 @@ func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterfa
 	campaign := Campaign{
 		ID:        id,
 		Name:      name,
-		Recipient: recipient,
 		StartTime: startTime,
 		EndTime:   endTime,
 	}
@@ -71,11 +65,9 @@ func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterfa
 
 func (s *SmartContract) DeleteCampaign(ctx contractapi.TransactionContextInterface, id string) error {
 	exists, err := s.CampaignExists(ctx, id)
-	
 	if err != nil {
 		return err
 	}
-	
 	if !exists {
 		return fmt.Errorf("Error while deleting campaign: the campaign %s does not exist", id)
 	}
@@ -83,6 +75,22 @@ func (s *SmartContract) DeleteCampaign(ctx contractapi.TransactionContextInterfa
 	return ctx.GetStub().DelState(id)
 }
 
+func (s *SmartContract) RetrieveEnvelope(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	ownerBytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return "" , fmt.Errorf("Failed to read envelope %s from world state. %v", id, err)
+	}
+
+	fmt.Print(ownerBytes)
+
+	// var owner Owner
+	// error := json.Unmarshal(ownerBytes, owner)
+	// if error != nil {
+	// 	return "", fmt.Errorf("Failed to unmarshal envelope %v", error)
+	// }
+
+	return string(ownerBytes), nil
+}
 func (s *SmartContract) CampaignExists(ctx contractapi.TransactionContextInterface, campaignID string) (bool, error) {
 	campaignBytes, err := ctx.GetStub().GetState(campaignID)
 
@@ -157,40 +165,37 @@ func (s *SmartContract) GetAvailableCampaings(ctx contractapi.TransactionContext
 	return campaigns, nil
 }
 
-func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextInterface, campaignId string, ownerId string, knowledgeGraph string, privacyPreferences string) error {
-	queryString := fmt.Sprintf(`{"selector":{"id":{"$eq": "%s"}}}`, campaignId)
+func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextInterface, id, campaignId, envelope, privacyPreference string) error {
+	// dataBytes, errCampaign := ctx.GetStub().GetState(id)
+	// if errCampaign != nil {
+	// 	return fmt.Errorf("Failed to read from world state %s %v", id, errCampaign)
+	// }
+	// if dataBytes != nil {
+	// 	return fmt.Errorf("Data ID %s already existent", id)
+	// }
 
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	exists, err := s.CampaignExists(ctx, campaignId)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("Campaign %s does not exist", campaignId)
+	}
+
+	owner := Owner{			
+		ID:					id,
+		CampaignID: 		campaignId,
+		Envelope: 			envelope,	
+		PrivacyPreference:	privacyPreference,
+	}
+
+	ownerJSON, err := json.Marshal(owner)
 	if err != nil {
 		return err
 	}
 
-	defer resultsIterator.Close()
+	err = ctx.GetStub().PutState(id, ownerJSON)
 
-	queryResponse, err := resultsIterator.Next()
-	if err != nil {
-		return err
-	}
-
-	var campaign Campaign
-	err = json.Unmarshal(queryResponse.Value, &campaign)
-	if err != nil {
-		return err
-	}
-
-	owner := Owner{
-		ID:					ownerId,			
-		KnowledgeGraph:		knowledgeGraph,	
-		privacyPreferences:	privacyPreferences,
-	}
-	campaign.Owner = owner
-
-	campaignJSON, err := json.Marshal(campaign)
-	if err != nil {
-		return err
-	}
-
-	err = ctx.GetStub().PutState(campaignId, campaignJSON)
 	if err != nil {
 		return err
 	}
@@ -198,25 +203,11 @@ func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextIn
 	return nil
 }
 
-
 //TODO dummy function for now
 func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface) (bool, error) {
-	var H ristretto.Point
-	H.Rand(); 
-	var m1, m2 ristretto.Scalar
-	m1.Rand()
-	m2.Set(&m1)
-	C1, r1 := generateCommitment(&H, &m1)
-	C2, r2 := generateCommitment(&H, &m2)
-
-	var proof chaum_pedersen.PedersenEquality
-	proof.Prove(&H, &m1, r1, r2)
-
-	verified := proof.Verify(C1, C2)
-	if verified == false {
-		log.Panicf("Proofs are equal but they are not verified")
-	} else {
-		fmt.Println("The proof is correctly verified as expected :)")
+	verified := false
+	for i := 1; i <= 10; i++ {
+		verified = C1.Equals(C2)
 	}
 	return verified, nil
 }
@@ -230,7 +221,17 @@ func generateCommitment(H *ristretto.Point, m *ristretto.Scalar) (*ristretto.Poi
 	return C, &r
 }
 
+var C1, C2 *ristretto.Point
 func main() {
+	var H ristretto.Point
+	H.Rand(); 
+	var m1, m2 ristretto.Scalar
+	m1.Rand()
+	m2.Set(&m1)
+	C1, _ = generateCommitment(&H, &m1)
+	C2, _ = generateCommitment(&H, &m2)
+	fmt.Println(C1, C2)
+
 	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
 	if err != nil {
 		log.Panicf("Error creating campaign chaincode: %v", err)
