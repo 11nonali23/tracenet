@@ -3,14 +3,12 @@ module tracenet.com/main
 go 1.19
 
 require (
-	github.com/11nonali23/elliptic-curve-ZKP-equality v0.0.0-20221103154708-7b0f961cb1e6
 	github.com/bwesterb/go-ristretto v1.2.2
 	github.com/hyperledger/fabric-contract-api-go v1.2.0
 	github.com/tuhoag/elliptic-curve-cryptography-go v0.0.4
 )
 
 require (
-	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/spec v0.20.7 // indirect
