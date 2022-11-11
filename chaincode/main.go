@@ -6,9 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/bwesterb/go-ristretto"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/tuhoag/elliptic-curve-cryptography-go/pedersen"
 )
 
 type SmartContract struct {
@@ -23,10 +21,17 @@ type Campaign struct {
 }
 
 type Owner struct {
-	ID					string `json:"KnowledgeGraph"`
-	CampaignID			string `json:"campaignID"`
-	Envelope			string `json:"Envelope"`
+	ID					string `json:"KGId"`
+	CampaignID			string `json:"campaignId"`
+	Envelope			string `json:"envelope"`
 	PrivacyPreference	string `json:"privacyPreference"`
+}
+
+type AnonymizedKG struct {
+	ID					string `json:"id"`
+	CampaignID			string `json:"campaignId"`
+	Envelope			string `json:"envelope"`
+	Signature			string `json:"signature"`
 }
 
 func (s *SmartContract) Test(ctx contractapi.TransactionContextInterface) error {
@@ -165,14 +170,14 @@ func (s *SmartContract) GetAvailableCampaings(ctx contractapi.TransactionContext
 	return campaigns, nil
 }
 
-func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextInterface, id, campaignId, envelope, privacyPreference string) error {
-	// dataBytes, errCampaign := ctx.GetStub().GetState(id)
-	// if errCampaign != nil {
-	// 	return fmt.Errorf("Failed to read from world state %s %v", id, errCampaign)
-	// }
-	// if dataBytes != nil {
-	// 	return fmt.Errorf("Data ID %s already existent", id)
-	// }
+func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextInterface, id, campaignId, privacyPreference, envelope string) error {
+	dataBytes, errId := ctx.GetStub().GetState(id)
+	if errId != nil {
+		return fmt.Errorf("Failed to read from world state %s %v", id, errId)
+	}
+	if dataBytes != nil {
+		return fmt.Errorf("Data ID %s already existent", id)
+	}
 
 	exists, err := s.CampaignExists(ctx, campaignId)
 	if err != nil {
@@ -203,35 +208,50 @@ func (s *SmartContract) ShareKnowledgeGraph(ctx contractapi.TransactionContextIn
 	return nil
 }
 
-//TODO dummy function for now
-func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface) (bool, error) {
-	verified := false
-	for i := 1; i <= 10; i++ {
-		verified = C1.Equals(C2)
+func (s *SmartContract) ShareKGForVerification(ctx contractapi.TransactionContextInterface, id, campaignId, envelope, signature string) error {
+	dataBytes, errId := ctx.GetStub().GetState(id)
+	if errId != nil {
+		return fmt.Errorf("Failed to read from world state %s %v", id, errId)
 	}
-	return verified, nil
+	if dataBytes != nil {
+		return fmt.Errorf("Data ID %s already existent", id)
+	}
+
+	exists, err := s.CampaignExists(ctx, campaignId)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("Campaign %s does not exist", campaignId)
+	}
+
+	anonymizedKG := AnonymizedKG{			
+		ID:					id,
+		CampaignID: 		campaignId,
+		Envelope: 			envelope,	
+		Signature:			signature,
+	}
+
+	ownerJSON, err := json.Marshal(anonymizedKG)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(id, ownerJSON)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func generateCommitment(H *ristretto.Point, m *ristretto.Scalar) (*ristretto.Point, *ristretto.Scalar) {
-	var r ristretto.Scalar
-	r.Rand()
-	
-	C := pedersen.CommitTo(H, m, &r)
-
-	return C, &r
+//TODO dummy function for now
+func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface, userCommit, rollupCommit string) bool {
+	return userCommit == rollupCommit
 }
 
-var C1, C2 *ristretto.Point
 func main() {
-	var H ristretto.Point
-	H.Rand(); 
-	var m1, m2 ristretto.Scalar
-	m1.Rand()
-	m2.Set(&m1)
-	C1, _ = generateCommitment(&H, &m1)
-	C2, _ = generateCommitment(&H, &m2)
-	fmt.Println(C1, C2)
-
 	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
 	if err != nil {
 		log.Panicf("Error creating campaign chaincode: %v", err)
