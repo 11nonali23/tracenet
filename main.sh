@@ -96,15 +96,6 @@ function shareData() {
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
-function shareKGForVerification() {
-    id="lkjsfkjsadkjhfkjsd"
-    campaignId="c1"
-    envelope="abcdefghi"
-    privacyPreference="5"
-    fcnCall='{"function":"'shareData'","Args":["'${id}'","'${campaignId}'","'${envelope}'","'${privacyPreference}'"]}'
-    $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
-}
-
 function retrieveEnvelope() {
     id="lkjsfkjsadkjhfkjsd"
     fcnCall='{"function":"'RetrieveEnvelope'","Args":["'${id}'"]}'

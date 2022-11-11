@@ -17,6 +17,14 @@ type Campaign struct {
 }
 
 func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterface, id string, name string, startTime string, endTime string) error {
+	exists, err := s.campaignExists(ctx, id)
+    if err != nil {
+        return err
+    }
+    if exists {
+        return fmt.Errorf("Campaign %s already exists", id)
+    }
+
 	campaign := Campaign{
 		Id:       			id,
 		AssetType: 			string(CampaignAssetType),

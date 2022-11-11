@@ -3,7 +3,7 @@
 const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
 let ids = []
 
-class ShareKGWorkload extends WorkloadModuleBase {
+class ShareKGVerificatoinWorkload extends WorkloadModuleBase {
 
     constructor() {
         super();
@@ -35,14 +35,14 @@ class ShareKGWorkload extends WorkloadModuleBase {
         this.txIndex++;
         const randID = Math.floor(Math.random() * 1000)
         const assetID = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
-        //ids.push(assetID)
+        ids.push(assetID)
 
-        console.log(`Worker ${this.workerIndex}: Share KG Creating asset ${assetID}`);
+        console.log(`Worker ${this.workerIndex}: Share KG for verification - Creating asset ${assetID}`);
         const shareKG = {
             contractId: this.roundArguments.contractId,
-            contractFunction: 'ShareKnowledgeGraph',
+            contractFunction: 'ShareAnonymizedKGForVerification',
             invokerIdentity: 'peer0.obs0.tracenet.com',
-            contractArguments: [assetID, this.campaignID, "abc", "10"],
+            contractArguments: [assetID, this.campaignID, "rec_id", "env", "sign"],
             readOnly: false
         };
 
@@ -50,6 +50,20 @@ class ShareKGWorkload extends WorkloadModuleBase {
     }
 
     async cleanupWorkloadModule() {
+        for (let i = 0; i < ids.length; i++) {
+            const assetID = ids[i];
+            console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
+            const request = {
+                contractId: this.roundArguments.contractId,
+                contractFunction: 'DeleteAnonymizedKG',
+                invokerIdentity: 'peer0.obs0.tracenet.com',
+                contractArguments: [assetID],
+                readOnly: false
+            };
+
+            await this.sutAdapter.sendRequests(request);
+            ids = []
+        }
     }
 }
 
@@ -59,7 +73,7 @@ class ShareKGWorkload extends WorkloadModuleBase {
  */
 
 function createWorkloadModule() {
-    return new ShareKGWorkload();
+    return new ShareKGVerificatoinWorkload();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;
