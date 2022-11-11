@@ -23,7 +23,6 @@ sudo chmod -R 755 scripts/
 ```
 ./main.sh network restart
 ```
-
 This command will:
 - down the network and clean
 - initialization with cryptogen
@@ -31,17 +30,9 @@ This command will:
 - create a channel named "mychannel"
 - join the channel by the two orgs (Org1, Org2)
 - set the anchor peer
-- deploy a sample chaincode
-
-**Query the network**
-```
-./main.sh chaincode query
-```
-
-This command will do a sample query on the network
+- deploy the chaincode
 
 **Launch caliper tests**
-ToDo: some tests need to be updated
 ```
 ./main.sh caliper init
 ./main.sh caliper launch
