@@ -75,28 +75,33 @@ function commitChaincode() {
 
 function invokeChaincodeInit() {
     id="c1"
-    startDate="2022-05-02T15:02:40.628Z"
-    endDate="2023-05-02T15:02:40.628Z"
-    fcnCall='{"function":"'CreateCampaign'","Args":["'${id}'","'Campaign1'","'${startDate}'","'${endDate}'"]}'
+    startTime="2022-05-02T15:02:40.628Z"
+    endTime="2023-05-02T15:02:40.628Z"
+    fcnCall='{"function":"'CreateCampaign'","Args":["'${id}'","'C1'","'${startTime}'","'${endTime}'"]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
 function queryChaincode() {
-    fcnCall='{"function":"'ReadAllCampaigns'","Args":[]}'
-
-    $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
-
-    fcnCall='{"function":"'GetAvailableCampaings'","Args":[]}'
+    fcnCall='{"function":"'QueryCampaign'","Args":["'lkjsfkjsadkjhfkjsd'"]}'
 
     $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
 }
 
-function shareKG() {
+function shareData() {
     id="lkjsfkjsadkjhfkjsd"
     campaignId="c1"
     envelope="abcdefghi"
     privacyPreference="5"
-    fcnCall='{"function":"'ShareKnowledgeGraph'","Args":["'${id}'","'${campaignId}'","'${envelope}'","'${privacyPreference}'"]}'
+    fcnCall='{"function":"'shareData'","Args":["'${id}'","'${campaignId}'","'${envelope}'","'${privacyPreference}'"]}'
+    $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+}
+
+function shareKGForVerification() {
+    id="lkjsfkjsadkjhfkjsd"
+    campaignId="c1"
+    envelope="abcdefghi"
+    privacyPreference="5"
+    fcnCall='{"function":"'shareData'","Args":["'${id}'","'${campaignId}'","'${envelope}'","'${privacyPreference}'"]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
@@ -189,8 +194,8 @@ elif [ $MODE = "chaincode" ]; then
         invokeChaincodeInit
     elif [ $SUB_MODE = "query" ]; then
         queryChaincode
-    elif [ $SUB_MODE = "share-KG" ]; then
-        shareKG
+    elif [ $SUB_MODE = "share-data" ]; then
+        shareData
     elif [ $SUB_MODE = "retrieveEnvelope" ]; then
         retrieveEnvelope
     elif [ $SUB_MODE = "verify-proof" ]; then
