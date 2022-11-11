@@ -2,11 +2,7 @@ module tracenet.com/main
 
 go 1.19
 
-require (
-	github.com/bwesterb/go-ristretto v1.2.2
-	github.com/hyperledger/fabric-contract-api-go v1.2.0
-	github.com/tuhoag/elliptic-curve-cryptography-go v0.0.4
-)
+require github.com/hyperledger/fabric-contract-api-go v1.2.0
 
 require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect

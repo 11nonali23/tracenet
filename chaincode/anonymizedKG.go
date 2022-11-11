@@ -16,6 +16,7 @@ type AnonymizedKG struct {
 	RollupEnvelope		string 	`json:"rollupEnvelope"`
 	RecipientEnvelope	string 	`json:"recipientEnvelope"`
 	Signature			string 	`json:"signature"`
+	Verified			bool	`json:"verified"`
 }
 
 func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.TransactionContextInterface, id, campaignId, recipientId, rollupEnvelope, signature string) error {
@@ -43,6 +44,7 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
         RollupEnvelope:     rollupEnvelope,
 		RecipientEnvelope: 	"",   
         Signature:  		signature,
+		Verified: 			false,	
     }
 
     ownerJSON, err := json.Marshal(anonymizedKG)
@@ -88,6 +90,29 @@ func (s *SmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.Transacti
     }
 
 	return ctx.GetStub().PutState(id, anonymizedKGJSON)
+}
+
+func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface, KGId, userCommit, rollupCommit string) (bool, error) {
+    idExists, err := s.anonymizedKGExists(ctx, KGId)
+    if err != nil {
+        return false, err
+    }
+    if !idExists {
+        return false, fmt.Errorf("Id %s does not exist", KGId)
+    }
+
+    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
+	if err != nil {
+		return false, fmt.Errorf("anonynimized KG %s does not exist", KGId)
+	}
+	anonymizedKG.Verified = rollupCommit == userCommit
+
+    anonymizedKGJSON, err := json.Marshal(anonymizedKG)
+    if err != nil {
+        return rollupCommit == userCommit, err
+    }
+
+	return rollupCommit == userCommit, ctx.GetStub().PutState(KGId, anonymizedKGJSON)
 }
 
 func (s *SmartContract) DeleteAnonymizedKG(ctx contractapi.TransactionContextInterface, id string) error {
