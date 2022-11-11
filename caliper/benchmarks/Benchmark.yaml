@@ -46,20 +46,34 @@ test:
           min: 3
           tx: 2000
           contractId: main
-    - label: Verify Proof
-      txNumber: 2000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 100
-      workload:
-        module: benchmarks/workload/verifyProof.js
-        arguments:
-          assets: 500
-          max: 10
-          min: 3
-          tx: 2000
-          contractId: main    
+    # - label: Share KG with data recipient
+    #   txNumber: 2000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 100
+    #   workload:
+    #     module: benchmarks/workload/shareKGRecipient.js
+    #     arguments:
+    #       assets: 500
+    #       max: 10
+    #       min: 3
+    #       tx: 2000
+    #       contractId: main
+    # - label: Verify Proof
+    #   txNumber: 2000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 100
+    #   workload:
+    #     module: benchmarks/workload/verifyProof.js
+    #     arguments:
+    #       assets: 500
+    #       max: 10
+    #       min: 3
+    #       tx: 2000
+    #       contractId: main    
 
 monitor:
   type:

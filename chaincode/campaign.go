@@ -14,6 +14,7 @@ type Campaign struct {
 	Name      		string 			`json:"name"`
 	StartTime 		string 			`json:"startTime"`
 	EndTime			string 			`json:"endTime"`
+	Viewers			[]string		`json:"viewers"`
 }
 
 func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterface, id string, name string, startTime string, endTime string) error {
@@ -31,6 +32,7 @@ func (s *SmartContract) CreateCampaign(ctx contractapi.TransactionContextInterfa
 		Name:      			name,
 		StartTime: 			startTime,
 		EndTime:   			endTime,
+		Viewers: 			[]string{},
 	}
 
 	campaignJSON, err := json.Marshal(campaign)

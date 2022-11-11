@@ -61,35 +61,47 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
 	return nil
 }
 
-func (s *SmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, id, campaignId, recipientId, recipientEnvelope string) error {
-    idExists, err := s.anonymizedKGExists(ctx, id)
+func (s *SmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, KGId, campaignId, recipientId, recipientEnvelope string) error {
+    idExists, err := s.anonymizedKGExists(ctx, KGId)
     if err != nil {
         return err
     }
     if !idExists {
-        return fmt.Errorf("Id %s does not exist", id)
+        return fmt.Errorf("Id %s does not exist", KGId)
     }
 
-    exists, err := s.campaignExists(ctx, campaignId)
+    campaign, err := s.getCampaign(ctx, campaignId)
+    if err != nil {
+        return fmt.Errorf("Campaign %s does not exist", campaignId)
+    }
+    for _, viewer := range campaign.Viewers {
+        if viewer == recipientId {
+            return fmt.Errorf("Recipient %s already requested data", recipientId)
+        }
+    }
+    campaign.Viewers = append(campaign.Viewers, recipientId)
+
+    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
+	if err != nil {
+		return fmt.Errorf("Anonymized KG %s does not exist", KGId)
+	}
+	anonymizedKG.RecipientEnvelope = recipientEnvelope
+    
+    campaignJSON, err := json.Marshal(campaign)
     if err != nil {
         return err
     }
-    if !exists {
-        return fmt.Errorf("Campaign %s does not exist", campaignId)
-    }
-
-    anonymizedKG, err := s.getAnonymizedKG(ctx, id)
-	if err != nil {
-		return fmt.Errorf("Campaign %s does not exist", campaignId)
-	}
-	anonymizedKG.RecipientEnvelope = recipientEnvelope
 
     anonymizedKGJSON, err := json.Marshal(anonymizedKG)
     if err != nil {
         return err
     }
 
-	return ctx.GetStub().PutState(id, anonymizedKGJSON)
+    // When doing this code caliper gives MVCC conflict for race condition
+    ctx.GetStub().PutState(campaign.Id, campaignJSON)
+    ctx.GetStub().PutState(KGId, anonymizedKGJSON)
+
+	return nil
 }
 
 func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface, KGId, userCommit, rollupCommit string) (bool, error) {
@@ -101,21 +113,19 @@ func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface,
         return false, fmt.Errorf("Id %s does not exist", KGId)
     }
 
-    // When doing so caliper gives MVCC conflict
-    // anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
-	// if err != nil {
-	// 	return false, fmt.Errorf("anonynimized KG %s does not exist", KGId)
-	// }
-	// anonymizedKG.Verified = rollupCommit == userCommit
+    // When doing this code caliper gives MVCC conflict for race condition
+    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
+	if err != nil {
+		return false, fmt.Errorf("anonynimized KG %s does not exist", KGId)
+	}
+	anonymizedKG.Verified = rollupCommit == userCommit
 
-    // anonymizedKGJSON, err := json.Marshal(anonymizedKG)
-    // if err != nil {
-    //     return rollupCommit == userCommit, err
-    // }
+    anonymizedKGJSON, err := json.Marshal(anonymizedKG)
+    if err != nil {
+        return rollupCommit == userCommit, err
+    }
 
-	// return rollupCommit == userCommit, ctx.GetStub().PutState(KGId, anonymizedKGJSON)
-
-    return rollupCommit == userCommit, nil
+	return rollupCommit == userCommit, ctx.GetStub().PutState(KGId, anonymizedKGJSON)
 }
 
 func (s *SmartContract) DeleteAnonymizedKG(ctx contractapi.TransactionContextInterface, id string) error {
