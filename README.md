@@ -40,15 +40,9 @@ This command will:
 
 This command will do a sample query on the network
 
-
-# Todo
-- [x] create a network: 2 orgs, 1 orderer
-- [x] create channel script
-- [x] join channel script
-- [x] set anchor peer
-- [x] create chaincode: insert, update, delete, query
-- [ ] increase orgs: 4. update configuration
-- [ ] use two chaincodes
-- [ ] caliper
-- [x] use single orgs endorsement policy
-- [x] use couchdb & query with couchdb
+**Launch caliper tests**
+ToDo: some tests need to be updated
+```
+./main.sh caliper init
+./main.sh caliper launch
+```
