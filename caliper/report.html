@@ -128,7 +128,7 @@
                 <li>DLT: &nbsp<span style="font-weight: 500;">fabric</span></li>
                 <li>Name: &nbsp<span style="font-weight: 500;">basic test</span></li>
                 <li>Description: &nbsp<span style="font-weight: 500;"></span></li>
-                <li>Benchmark Rounds: &nbsp<span style="font-weight: 500;">2</span></li>
+                <li>Benchmark Rounds: &nbsp<span style="font-weight: 500;">4</span></li>
                 <li><a href="#benchmarkInfo">Details</a></li>
             </ul>
             <ul>
@@ -136,6 +136,8 @@
                 <li><a href="#benchmarksummary">Summary</a></li>
                     <li><a href="#Create Campaign">Create Campaign</a></li>
                     <li><a href="#Share Data">Share Data</a></li>
+                    <li><a href="#Share KG for Verification">Share KG for Verification</a></li>
+                    <li><a href="#Verify Proof">Verify Proof</a></li>
             </ul>
             <ul>
                 <h3>&nbspSystem under test</h3>
@@ -153,10 +155,16 @@
                     </tr>
 
                     <tr>
-                         <td>Create Campaign</td> <td>2000</td> <td>0</td> <td>100.1</td> <td>19.91</td> <td>0.35</td> <td>11.51</td> <td>50.3</td>
+                         <td>Create Campaign</td> <td>2000</td> <td>0</td> <td>100.0</td> <td>23.27</td> <td>0.52</td> <td>13.62</td> <td>46.4</td>
                     </tr>
                     <tr>
-                         <td>Share Data</td> <td>2000</td> <td>0</td> <td>100.0</td> <td>23.63</td> <td>0.21</td> <td>15.01</td> <td>46.1</td>
+                         <td>Share Data</td> <td>2000</td> <td>0</td> <td>100.0</td> <td>25.46</td> <td>0.24</td> <td>15.76</td> <td>44.1</td>
+                    </tr>
+                    <tr>
+                         <td>Share KG for Verification</td> <td>2000</td> <td>0</td> <td>100.1</td> <td>23.10</td> <td>0.26</td> <td>14.26</td> <td>46.6</td>
+                    </tr>
+                    <tr>
+                         <td>Verify Proof</td> <td>2000</td> <td>0</td> <td>100.1</td> <td>6.56</td> <td>0.15</td> <td>3.17</td> <td>75.8</td>
                     </tr>
                 </table>
             </div>
@@ -174,7 +182,7 @@
                                      <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
                                 </tr>
                                 <tr>
-                                     <td>Create Campaign</td> <td>2000</td> <td>0</td> <td>100.1</td> <td>19.91</td> <td>0.35</td> <td>11.51</td> <td>50.3</td>
+                                     <td>Create Campaign</td> <td>2000</td> <td>0</td> <td>100.0</td> <td>23.27</td> <td>0.52</td> <td>13.62</td> <td>46.4</td>
                                 </tr>
                             </table>
                         <h3>Resource utilization for Create Campaign</h3>
@@ -194,10 +202,50 @@
                                      <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
                                 </tr>
                                 <tr>
-                                     <td>Share Data</td> <td>2000</td> <td>0</td> <td>100.0</td> <td>23.63</td> <td>0.21</td> <td>15.01</td> <td>46.1</td>
+                                     <td>Share Data</td> <td>2000</td> <td>0</td> <td>100.0</td> <td>25.46</td> <td>0.24</td> <td>15.76</td> <td>44.1</td>
                                 </tr>
                             </table>
                         <h3>Resource utilization for Share Data</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Share KG for Verification">
+                <h2>Benchmark round: Share KG for Verification</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for Share KG for Verification</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Share KG for Verification</td> <td>2000</td> <td>0</td> <td>100.1</td> <td>23.10</td> <td>0.26</td> <td>14.26</td> <td>46.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Share KG for Verification</h3>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Verify Proof">
+                <h2>Benchmark round: Verify Proof</h2>
+                <p></p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 100
+</pre>
+                        <h3>Performance metrics for Verify Proof</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Verify Proof</td> <td>2000</td> <td>0</td> <td>100.1</td> <td>6.56</td> <td>0.15</td> <td>3.17</td> <td>75.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Verify Proof</h3>
             </div>
 
             <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;">
@@ -230,6 +278,34 @@ rounds:
         tps: 100
     workload:
       module: benchmarks&#x2F;workload&#x2F;shareData.js
+      arguments:
+        assets: 500
+        max: 10
+        min: 3
+        tx: 2000
+        contractId: main
+  - label: Share KG for Verification
+    txNumber: 2000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: benchmarks&#x2F;workload&#x2F;shareKGVerification.js
+      arguments:
+        assets: 500
+        max: 10
+        min: 3
+        tx: 2000
+        contractId: main
+  - label: Verify Proof
+    txNumber: 2000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 100
+    workload:
+      module: benchmarks&#x2F;workload&#x2F;verifyProof.js
       arguments:
         assets: 500
         max: 10

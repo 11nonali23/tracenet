@@ -3,7 +3,7 @@
 const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
 let ids = []
 
-class ShareKGVerificatoinWorkload extends WorkloadModuleBase {
+class ShareKGVerificationWorkload extends WorkloadModuleBase {
 
     constructor() {
         super();
@@ -73,7 +73,7 @@ class ShareKGVerificatoinWorkload extends WorkloadModuleBase {
  */
 
 function createWorkloadModule() {
-    return new ShareKGVerificatoinWorkload();
+    return new ShareKGVerificationWorkload();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

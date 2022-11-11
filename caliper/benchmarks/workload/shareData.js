@@ -37,7 +37,7 @@ class ShareDataWorkload extends WorkloadModuleBase {
         const assetID = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
         ids.push(assetID)
 
-        console.log(`Worker ${this.workerIndex}: Share KG Creating asset ${assetID}`);
+        console.log(`Worker ${this.workerIndex}: Share KG - Creating asset ${assetID}`);
         const shareKG = {
             contractId: this.roundArguments.contractId,
             contractFunction: 'ShareData',

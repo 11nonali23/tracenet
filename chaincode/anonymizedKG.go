@@ -38,7 +38,7 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
 
     anonymizedKG := AnonymizedKG{         
         Id:             	id,
-		AssetType:	 		string(OnwerDataAssetType),
+		AssetType:	 		string(AnonymizedKGAssetType),
 		CampaignId: 		campaignId,
 		RecipientId: 		recipientId,	
         RollupEnvelope:     rollupEnvelope,
@@ -101,18 +101,21 @@ func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface,
         return false, fmt.Errorf("Id %s does not exist", KGId)
     }
 
-    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
-	if err != nil {
-		return false, fmt.Errorf("anonynimized KG %s does not exist", KGId)
-	}
-	anonymizedKG.Verified = rollupCommit == userCommit
+    // When doing so caliper gives MVCC conflict
+    // anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
+	// if err != nil {
+	// 	return false, fmt.Errorf("anonynimized KG %s does not exist", KGId)
+	// }
+	// anonymizedKG.Verified = rollupCommit == userCommit
 
-    anonymizedKGJSON, err := json.Marshal(anonymizedKG)
-    if err != nil {
-        return rollupCommit == userCommit, err
-    }
+    // anonymizedKGJSON, err := json.Marshal(anonymizedKG)
+    // if err != nil {
+    //     return rollupCommit == userCommit, err
+    // }
 
-	return rollupCommit == userCommit, ctx.GetStub().PutState(KGId, anonymizedKGJSON)
+	// return rollupCommit == userCommit, ctx.GetStub().PutState(KGId, anonymizedKGJSON)
+
+    return rollupCommit == userCommit, nil
 }
 
 func (s *SmartContract) DeleteAnonymizedKG(ctx contractapi.TransactionContextInterface, id string) error {

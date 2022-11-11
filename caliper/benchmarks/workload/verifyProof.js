@@ -7,6 +7,7 @@ class VerifyProofWorkload extends WorkloadModuleBase {
     constructor() {
         super();
         this.campaignID = Math.floor(Math.random() * 1000).toString();
+        this.KGId = Math.floor(Math.random() * 1000).toString()
     }
 
     /**
@@ -28,22 +29,18 @@ class VerifyProofWorkload extends WorkloadModuleBase {
 
         await this.sutAdapter.sendRequests(createCampaign);
 
-        for (let i = 0; i < 30; i++) {
-            let KGID = Math.floor(Math.random() * 1000).toString()
-            ids.push(KGID)
-            console.log(`Worker ${this.workerIndex}: Creating a KG ${KGID}`);
+        console.log(`Worker ${this.workerIndex}: Creating anonymized KG ${this.KGId}`);
 
-            //should be an anonymized KG
-            const shareKG = {
-                contractId: this.roundArguments.contractId,
-                contractFunction: 'ShareKnowledgeGraph',
-                invokerIdentity: 'peer0.obs0.tracenet.com',
-                contractArguments: [KGID, this.campaignID, "abc", "10"],
-                readOnly: false
-            };
+        const shareKG = {
+            contractId: this.roundArguments.contractId,
+            contractFunction: 'ShareAnonymizedKGForVerification',
+            invokerIdentity: 'peer0.obs0.tracenet.com',
+            contractArguments: [this.KGId, this.campaignID, "rec_id", "env", "sign"],
+            readOnly: false
+        };
 
-            await this.sutAdapter.sendRequests(shareKG);
-        }
+        await this.sutAdapter.sendRequests(shareKG);
+
     }
 
     async submitTransaction() {
@@ -52,14 +49,24 @@ class VerifyProofWorkload extends WorkloadModuleBase {
             contractId: this.roundArguments.contractId,
             contractFunction: 'VerifyProof',
             invokerIdentity: 'peer0.obs0.tracenet.com',
-            contractArguments: [],
+            contractArguments: [this.KGId, "a random string of a commitment", "a random string of a commitment"],
             readOnly: false
         };
 
         await this.sutAdapter.sendRequests(request);
     }
+
     async cleanupWorkloadModule() {
-        //nothing here
+        console.log(`Worker ${this.workerIndex}: Deleting asset ${this.KGId}`);
+        const request = {
+            contractId: this.roundArguments.contractId,
+            contractFunction: 'DeleteAnonymizedKG',
+            invokerIdentity: 'peer0.obs0.tracenet.com',
+            contractArguments: [this.KGId],
+            readOnly: false
+        };
+
+        await this.sutAdapter.sendRequests(request);
     }
 }
 
