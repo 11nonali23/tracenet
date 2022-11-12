@@ -1,7 +1,8 @@
 'use strict';
 
 const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
-let ids = []
+let ids1 = []
+let ids2 = []
 
 class ShareKGVerificationWorkload extends WorkloadModuleBase {
 
@@ -58,15 +59,15 @@ class ShareKGVerificationWorkload extends WorkloadModuleBase {
     async submitTransaction() {
         this.txIndex++;
         const randID = Math.floor(Math.random() * 1000)
-        const assetID = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
-        ids.push(assetID)
+        const assetID1 = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
+        const assetID2 = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
 
-        console.log(`Worker ${this.workerIndex}: Share KG with recipient ${assetID}`);
+        console.log(`Worker ${this.workerIndex}: Share KG with recipient ${this.KGId}`);
         const shareKG = {
             contractId: this.roundArguments.contractId,
-            contractFunction: 'ShareAnonymizedKGWithRecipient',
+            contractFunction: 'CaliperShareAnonymizedKGWithRecipient',
             invokerIdentity: 'peer0.obs0.tracenet.com',
-            contractArguments: [this.KGId, this.campaignID, "rec_id", "rec_env"],
+            contractArguments: [this.KGId, assetID1, assetID2, this.campaignID, "rec_id", "rec_env"],
             readOnly: false
         };
 
@@ -74,8 +75,8 @@ class ShareKGVerificationWorkload extends WorkloadModuleBase {
     }
 
     async cleanupWorkloadModule() {
-        for (let i = 0; i < ids.length; i++) {
-            const assetID = ids[i];
+        for (let i = 0; i < ids1.length; i++) {
+            const assetID = ids1[i];
             console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
             const request = {
                 contractId: this.roundArguments.contractId,
@@ -86,7 +87,21 @@ class ShareKGVerificationWorkload extends WorkloadModuleBase {
             };
 
             await this.sutAdapter.sendRequests(request);
-            ids = []
+            ids1 = []
+        }
+        for (let i = 0; i < ids2.length; i++) {
+            const assetID = ids2[i];
+            console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
+            const request = {
+                contractId: this.roundArguments.contractId,
+                contractFunction: 'DeleteAnonymizedKG',
+                invokerIdentity: 'peer0.obs0.tracenet.com',
+                contractArguments: [assetID],
+                readOnly: false
+            };
+
+            await this.sutAdapter.sendRequests(request);
+            ids2 = []
         }
     }
 }

@@ -33,6 +33,7 @@ This command will:
 - deploy the chaincode
 
 **Launch caliper tests**
+Test are run after initializing the ledger with 2000 transactions
 ```
 ./main.sh caliper init
 ./main.sh caliper launch

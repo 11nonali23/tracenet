@@ -47,12 +47,12 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
 		Verified: 			false,	
     }
 
-    ownerJSON, err := json.Marshal(anonymizedKG)
+    anonymizedKGJSON, err := json.Marshal(anonymizedKG)
     if err != nil {
         return err
     }
 
-	err = ctx.GetStub().PutState(id, ownerJSON)
+	err = ctx.GetStub().PutState(id, anonymizedKGJSON)
 
 	if err != nil {
 		return err
@@ -62,14 +62,10 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
 }
 
 func (s *SmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, KGId, campaignId, recipientId, recipientEnvelope string) error {
-    idExists, err := s.anonymizedKGExists(ctx, KGId)
-    if err != nil {
-        return err
-    }
-    if !idExists {
-        return fmt.Errorf("Id %s does not exist", KGId)
-    }
-
+    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
+	if err != nil {
+		return fmt.Errorf("Anonymized KG %s does not exist", KGId)
+	}
     campaign, err := s.getCampaign(ctx, campaignId)
     if err != nil {
         return fmt.Errorf("Campaign %s does not exist", campaignId)
@@ -79,19 +75,14 @@ func (s *SmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.Transacti
             return fmt.Errorf("Recipient %s already requested data", recipientId)
         }
     }
-    campaign.Viewers = append(campaign.Viewers, recipientId)
 
-    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
-	if err != nil {
-		return fmt.Errorf("Anonymized KG %s does not exist", KGId)
-	}
+    campaign.Viewers = append(campaign.Viewers, recipientId)
 	anonymizedKG.RecipientEnvelope = recipientEnvelope
     
     campaignJSON, err := json.Marshal(campaign)
     if err != nil {
         return err
     }
-
     anonymizedKGJSON, err := json.Marshal(anonymizedKG)
     if err != nil {
         return err
@@ -113,7 +104,6 @@ func (s *SmartContract) VerifyProof(ctx contractapi.TransactionContextInterface,
         return false, fmt.Errorf("Id %s does not exist", KGId)
     }
 
-    // When doing this code caliper gives MVCC conflict for race condition
     anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
 	if err != nil {
 		return false, fmt.Errorf("anonynimized KG %s does not exist", KGId)
@@ -171,4 +161,90 @@ func (s *SmartContract) getAnonymizedKG(ctx contractapi.TransactionContextInterf
 	_ = json.Unmarshal(anonymizedKGBytes, anonymizedKG)
 
     return anonymizedKG, nil
+}
+
+
+// Only for caliper testing
+// When updating an asset caliper gives MVCC conflict for race condition 
+// For a similar comparison I will do an query and then write on a new dummy asset id
+
+func (s *SmartContract) CaliperVerifyProof(ctx contractapi.TransactionContextInterface, KGId, dummyId, userCommit, rollupCommit string) (bool, error) {
+    idExists, err := s.anonymizedKGExists(ctx, KGId)
+    if err != nil {
+        return false, err
+    }
+    if !idExists {
+        return false, fmt.Errorf("Id %s does not exist", KGId)
+    }
+
+    dummyAnonymizedKG := AnonymizedKG{         
+        Id:             	dummyId,
+		AssetType:	 		string(AnonymizedKGAssetType),
+		CampaignId: 		"",
+		RecipientId: 		"",	
+        RollupEnvelope:     "",
+		RecipientEnvelope: 	"",   
+        Signature:  		"",
+		Verified: 			rollupCommit == userCommit,	
+    }
+
+    dummyAnonymizedKGJSON, err := json.Marshal(dummyAnonymizedKG)
+    if err != nil {
+        return rollupCommit == userCommit, err
+    }
+
+	return rollupCommit == userCommit, ctx.GetStub().PutState(dummyId, dummyAnonymizedKGJSON)
+}
+
+func (s *SmartContract) CaliperShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, KGId, dummyId1, dummyId2, campaignId, recipientId, recipientEnvelope string) error {
+    idExists, err := s.anonymizedKGExists(ctx, KGId)
+    if err != nil {
+        return err
+    }
+    if !idExists {
+        return fmt.Errorf("Id %s does not exist", KGId)
+    }
+
+    campaignExists, err := s.campaignExists(ctx, KGId)
+    if err != nil {
+        return err
+    }
+    if !campaignExists {
+        return fmt.Errorf("Campaign %s does not exist", KGId)
+    }
+
+    dummyAnonymizedKG := AnonymizedKG{         
+        Id:             	dummyId1,
+		AssetType:	 		string(AnonymizedKGAssetType),
+		CampaignId: 		"",
+		RecipientId: 		"",	
+        RollupEnvelope:     "",
+		RecipientEnvelope: 	recipientEnvelope,   
+        Signature:  		"",
+		Verified: 			true,	
+    }
+
+    dummyCampaign := Campaign{
+		Id:       			dummyId2,
+		AssetType: 			string(CampaignAssetType),
+		Name:      			"",
+		StartTime: 			"",
+		EndTime:   			"",
+		Viewers: 			[]string{},
+	}
+
+
+    dummyAnonymizedKGJSON, err := json.Marshal(dummyAnonymizedKG)
+    if err != nil {
+        return err
+    }
+    dummyCampaignJSON, err := json.Marshal(dummyCampaign)
+    if err != nil {
+        return err
+    }
+    
+    ctx.GetStub().PutState(dummyAnonymizedKG.Id, dummyAnonymizedKGJSON)
+    ctx.GetStub().PutState(dummyCampaign.Id, dummyCampaignJSON)
+
+	return nil
 }
