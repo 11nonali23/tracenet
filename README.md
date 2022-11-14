@@ -32,7 +32,7 @@ This command will:
 - set the anchor peer
 - deploy the chaincode
 
-*Testing the network*
+# Testing the network
 
 The framework used for the tests is Caliper. Test are run after initializing the ledger with 2000 transactions. Then every workload has 2000 tx with 200tps.
 ```
