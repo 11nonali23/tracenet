@@ -32,9 +32,9 @@ This command will:
 - set the anchor peer
 - deploy the chaincode
 
-**Launch caliper tests**
+*Testing the network*
 
-Test are run after initializing the ledger with 2000 transactions. Then every workload has 2000 tx with 200tps
+The framework used for the tests is Caliper. Test are run after initializing the ledger with 2000 transactions. Then every workload has 2000 tx with 200tps.
 ```
 ./main.sh caliper init
 ./main.sh caliper launch
