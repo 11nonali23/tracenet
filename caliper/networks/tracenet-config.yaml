@@ -9,9 +9,15 @@ caliper:
 channels:
   mychannel:
     contracts:
-    - id: main
+    - id: campaign
       language: golang
       version: "1.0"
+    - id: ownerData
+      language: golang
+      version: "1.0"
+    - id: anonymizedKG
+      language: golang
+      version: "1.0"  
     created: true
     orderers:
     - orderer.tracenet.com

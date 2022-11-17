@@ -21,7 +21,7 @@ class ShareDataWorkload extends WorkloadModuleBase {
         console.log(`Worker ${this.workerIndex}: Creating the campaign ${this.campaignID}`);
 
         const createCampaign = {
-            contractId: this.roundArguments.contractId,
+            contractId: "campaign",
             contractFunction: 'CreateCampaign',
             invokerIdentity: 'peer0.obs0.tracenet.com',
             contractArguments: [this.campaignID, 'Camp1', '"2022-05-02T15:02:40.628Z"', '"2023-05-02T15:02:40.628Z"'],

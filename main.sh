@@ -5,7 +5,9 @@
 export CHANNEL_NAME="mychannel"
 export LOG_LEVEL=INFO
 export FABRIC_LOGGING_SPEC=INFO
-export CHAINCODE_NAME="main"
+export CAMPAIGN_CHAINCODE_NAME="campaign"
+export OWNERDATA_CHAINCODE_NAME="ownerData"
+export ANONYMIZEDKG_CHAINCODE_NAME="anonymizedKG"
 
 function initialize() {
     $SCRIPTS_DIR/init.sh "orgs"
@@ -36,21 +38,41 @@ function joinChannel() {
 }
 
 function packageChaincode() {
-    $SCRIPTS_DIR/deployChaincode.sh "package" $CHAINCODE_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "package" $CAMPAIGN_CHAINCODE_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "package" $OWNERDATA_CHAINCODE_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "package" $ANONYMIZEDKG_CHAINCODE_NAME
 }
 
 function installChaincode() {
-    $SCRIPTS_DIR/deployChaincode.sh "install" $CHAINCODE_NAME $CHANNEL_NAME
-    $SCRIPTS_DIR/deployChaincode.sh "install" $CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "install" $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "install" $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "install" $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "install" $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "install" $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "install" $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME
 }
 
 function approveChaincode() {
-    $SCRIPTS_DIR/deployChaincode.sh "approve" $CHAINCODE_NAME $CHANNEL_NAME
-    $SCRIPTS_DIR/deployChaincode.sh "approve" $CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "approve" $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "approve" $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "approve" $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "approve" $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "approve" $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "approve" $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME
 }
 
 function commitChaincode() {
-    $SCRIPTS_DIR/deployChaincode.sh "commit" $CHAINCODE_NAME $CHANNEL_NAME
+    $SCRIPTS_DIR/deployChaincode.sh "commit" $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "commit" $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME
+    sleep 2
+    $SCRIPTS_DIR/deployChaincode.sh "commit" $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME
 }
 
 # function checkCommitted() {
@@ -78,11 +100,23 @@ function invokeChaincodeInit() {
     startTime="2022-05-02T15:02:40.628Z"
     endTime="2023-05-02T15:02:40.628Z"
     fcnCall='{"function":"'CreateCampaign'","Args":["'${id}'","'C1'","'${startTime}'","'${endTime}'"]}'
-    $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+    $SCRIPTS_DIR/chaincodeOperation.sh $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+    sleep 5
+
+    fcnCall='{"function":"'ShareData'","Args":["'D1'","'${id}'","'abcdefghi'","'lmnopqr'","'3'"]}'
+    $SCRIPTS_DIR/chaincodeOperation.sh $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+    sleep 5
+
+    fcnCall='{"function":"'ShareAnonymizedKGForVerification'","Args":["'D1'","'${id}'","'rec1'","'lmnopqr'","'abcdefghi'"]}'
+    $SCRIPTS_DIR/chaincodeOperation.sh $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+    #sleep 5
+
+    #fcnCall='{"function":"'ShareAnonymizedKGWithRecipient'","Args":["'D1'","'${id}'","'rec1'","'lmnopqr'","'abcdefghi'"]}'
+    #$SCRIPTS_DIR/chaincodeOperation.sh $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
 function queryChaincode() {
-    fcnCall='{"function":"'QueryCampaign'","Args":["'lkjsfkjsadkjhfkjsd'"]}'
+    fcnCall='{"function":"'QueryCampaign'","Args":["'c1'"]}'
 
     $SCRIPTS_DIR/chaincodeQuery.sh $CHAINCODE_NAME $CHANNEL_NAME "rec" 1 1 $fcnCall
 }
@@ -93,7 +127,7 @@ function shareData() {
     envelope="abcdefghi"
     privacyPreference="5"
     fcnCall='{"function":"'shareData'","Args":["'${id}'","'${campaignId}'","'${envelope}'","'${privacyPreference}'"]}'
-    $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
+    $SCRIPTS_DIR/chaincodeOperation.sh $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
 function retrieveEnvelope() {
