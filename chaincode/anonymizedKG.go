@@ -17,6 +17,7 @@ type AnonymizedKG struct {
 	RecipientEnvelope	string 	`json:"recipientEnvelope"`
 	Signature			string 	`json:"signature"`
 	Verified			bool	`json:"verified"`
+    Shared			    bool	`json:"shared"`
 }
 
 func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.TransactionContextInterface, id, campaignId, recipientId, rollupEnvelope, signature string) error {
@@ -44,7 +45,8 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
         RollupEnvelope:     rollupEnvelope,
 		RecipientEnvelope: 	"",   
         Signature:  		signature,
-		Verified: 			false,	
+		Verified: 			false,
+        Shared: 			false,	
     }
 
     anonymizedKGJSON, err := json.Marshal(anonymizedKG)
@@ -62,34 +64,33 @@ func (s *SmartContract) ShareAnonymizedKGForVerification(ctx contractapi.Transac
 }
 
 func (s *SmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, KGId, campaignId, recipientId, recipientEnvelope string) error {
+    campaignExists, _ := s.campaignExists(ctx, campaignId)
+    if campaignExists == false {
+        return fmt.Errorf("Campaign %s does not exist", campaignId)
+    }
+
     anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
 	if err != nil {
 		return fmt.Errorf("Anonymized KG %s does not exist", KGId)
 	}
-    campaign, err := s.getCampaign(ctx, campaignId)
-    if err != nil {
-        return fmt.Errorf("Campaign %s does not exist", campaignId)
+    if anonymizedKG.Verified != true {
+        return fmt.Errorf("Anonymized KG %s is not verified by the rollup server", KGId)
     }
-    for _, viewer := range campaign.Viewers {
-        if viewer == recipientId {
-            return fmt.Errorf("Recipient %s already requested data", recipientId)
-        }
+    if anonymizedKG.Shared != true {
+        return fmt.Errorf("Anonymized KG %s has been already shared", KGId)
     }
-
-    campaign.Viewers = append(campaign.Viewers, recipientId)
+    if recipientId != anonymizedKG.RecipientId {
+        return fmt.Errorf("Anonymized KG %s has the wrong recipient id %s", KGId, recipientId)
+    }
+    // Todo: perform a query to see the recipients that already had access instead
 	anonymizedKG.RecipientEnvelope = recipientEnvelope
+    anonymizedKG.Shared = true
     
-    campaignJSON, err := json.Marshal(campaign)
-    if err != nil {
-        return err
-    }
     anonymizedKGJSON, err := json.Marshal(anonymizedKG)
     if err != nil {
         return err
     }
 
-    // When doing this code caliper gives MVCC conflict for race condition
-    ctx.GetStub().PutState(campaign.Id, campaignJSON)
     ctx.GetStub().PutState(KGId, anonymizedKGJSON)
 
 	return nil
@@ -224,27 +225,13 @@ func (s *SmartContract) CaliperShareAnonymizedKGWithRecipient(ctx contractapi.Tr
 		Verified: 			true,	
     }
 
-    dummyCampaign := Campaign{
-		Id:       			dummyId2,
-		AssetType: 			string(CampaignAssetType),
-		Name:      			"",
-		StartTime: 			"",
-		EndTime:   			"",
-		Viewers: 			[]string{},
-	}
-
 
     dummyAnonymizedKGJSON, err := json.Marshal(dummyAnonymizedKG)
     if err != nil {
         return err
     }
-    dummyCampaignJSON, err := json.Marshal(dummyCampaign)
-    if err != nil {
-        return err
-    }
     
     ctx.GetStub().PutState(dummyAnonymizedKG.Id, dummyAnonymizedKGJSON)
-    ctx.GetStub().PutState(dummyCampaign.Id, dummyCampaignJSON)
 
 	return nil
 }
