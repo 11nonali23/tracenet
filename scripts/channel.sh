@@ -73,4 +73,6 @@ elif [ "$MODE" == "join" ]; then
   joinChannel $CHANNEL_NAME "rec" 0 0
   sleep 3
   joinChannel $CHANNEL_NAME "obs" 0 0
+  sleep 3
+  joinChannel $CHANNEL_NAME "prov" 0 0
 fi

@@ -8,6 +8,8 @@ function selectPeer() {
         local basePort=$REC_BASE_PORT
     elif [ $orgType = "obs" ]; then
         local basePort=$OBS_BASE_PORT
+    elif [ $orgType = "prov" ]; then
+        local basePort=$PROV_BASE_PORT
     else
         errorln "Org type $orgType is unsupported."
     fi

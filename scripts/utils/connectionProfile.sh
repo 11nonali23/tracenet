@@ -29,4 +29,16 @@ CAPORT=8054
 PEERPEM=organizations/peerOrganizations/obs0.tracenet.com/tlsca/tlsca.obs0.tracenet.com-cert.pem
 CAPEM=organizations/peerOrganizations/obs0.tracenet.com/ca/ca.obs0.tracenet.com-cert.pem
 
+ORG="obs0"
+PEER0_PORT=2050
+CAPORT=8054
+PEERPEM=organizations/peerOrganizations/obs0.tracenet.com/tlsca/tlsca.obs0.tracenet.com-cert.pem
+CAPEM=organizations/peerOrganizations/obs0.tracenet.com/ca/ca.obs0.tracenet.com-cert.pem
+
+ORG="prov0"
+PEER0_PORT=3050
+CAPORT=8054
+PEERPEM=organizations/peerOrganizations/prov0.tracenet.com/tlsca/tlsca.prov0.tracenet.com-cert.pem
+CAPEM=organizations/peerOrganizations/prov0.tracenet.com/ca/ca.prov0.tracenet.com-cert.pem
+
 echo "$(yaml_ccp $ORG $PEER0_PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/obs0.tracenet.com/connection-obs0.yaml

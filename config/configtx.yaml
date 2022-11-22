@@ -55,6 +55,26 @@ Organizations:
     OrdererEndpoints:
       - orderer.tracenet.com:7050
 
+  - &Prov0
+    Name: prov0MSP
+    ID: prov0MSP
+    MSPDir: ../organizations/peerOrganizations/prov0.tracenet.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('prov0MSP.admin', 'prov0MSP.peer', 'prov0MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('prov0MSP.admin', 'prov0MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('prov0MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('prov0MSP.peer')"
+    OrdererEndpoints:
+      - orderer.tracenet.com:7050
+
 Capabilities:
   Channel: &ChannelCapabilities
     V2_0: true
@@ -148,6 +168,7 @@ Profiles:
         Organizations:
           - *Rec0
           - *Obs0
+          - *Prov0
 
   TwoOrgsChannel:
     Consortium: SampleConsortium
@@ -157,5 +178,6 @@ Profiles:
       Organizations:
         - *Rec0
         - *Obs0
+        - *Prov0
       Capabilities:
         <<: *ApplicationCapabilities

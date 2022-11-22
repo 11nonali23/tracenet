@@ -33,3 +33,15 @@ PeerOrgs:
         - "0.0.0.0"
     Users:
       Count: 1
+
+  - Name: prov0
+    Domain: prov0.tracenet.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+        - "127.0.0.1"
+        - "0.0.0.0"
+    Users:
+      Count: 1
