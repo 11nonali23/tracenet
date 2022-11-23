@@ -4,12 +4,12 @@ test:
     type: local
     number: 1
   rounds: 
-    - label: Verify Proof Fixed Rate (2000:100)
+    - label: Verify Proof Fixed Rate (2000:50)
       txNumber: 2000
       rateControl:
         type: fixed-rate
         opts:
-          tps: 100
+          tps: 50
       workload:
         module: workload/verifyProof.js
         arguments:
