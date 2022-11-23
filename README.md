@@ -37,5 +37,9 @@ This command will:
 The framework used for the tests is Caliper. Test are run after initializing the ledger with 2000 transactions. Then every workload has 2000 tx with 200tps.
 ```
 ./main.sh caliper init
-./main.sh caliper launch
+./main.sh caliper launch campaign
+./main.sh caliper launch shareData
+./main.sh caliper launch KGVerification
+./main.sh caliper launch verifyProof
+./main.sh caliper launch shareAnonyKG
 ```

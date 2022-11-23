@@ -32,7 +32,7 @@ channels:
         endorsingPeer:  true
         eventSource:    true
         ledgerQuery:    true
-    peer0.prov0.tracenet.com:
+      peer0.prov0.tracenet.com:
         chaincodeQuery: true
         endorsingPeer:  true
         eventSource:    true

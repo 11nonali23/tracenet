@@ -1,0 +1,28 @@
+test:
+  name: basic test
+  workers:
+    type: local
+    number: 1
+  rounds: 
+    - label: Share KG for Verification Fixed Rate (2000:100)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workload/shareKGVerification.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: anonymizedKG 
+
+monitor:
+  type:
+  - none
+
+observer:
+  type: local
+  interval: 5

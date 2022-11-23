@@ -145,8 +145,24 @@ function initCaliper() {
     $SCRIPTS_DIR/caliper.sh "init" $CALIPER_VERSION $FABRIC_VERSION
 }
 
-function caliperLaunch() {
-    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_BENCH_CONFIG
+function caliperLaunchCampaign() {
+    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_CAMPAIGN_CONFIG
+}
+
+function caliperLaunchShareOwnerData() {
+    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_SHAREDATA_CONFIG
+}
+
+function caliperLaunchShareKGVerification() {
+    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_KGVERIFICATION_CONFIG
+}
+
+function caliperLaunchVerifyProof() {
+    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_CALIPERPROOF_CONFIG
+}
+
+function caliperLaunchShareKGRecipient() {
+    $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_KGRECIPIENT_CONFIG
 }
 
 function clearCaliper() {
@@ -239,7 +255,20 @@ elif [ $MODE = "caliper" ]; then
     if [ $SUB_MODE = "init" ]; then
         initCaliper
     elif [ $SUB_MODE = "launch" ]; then
-        caliperLaunch
+        TEST=$3
+        if [ $TEST = "campaign" ]; then
+            caliperLaunchCampaign
+        elif [ $TEST = "shareData" ]; then
+            caliperLaunchShareOwnerData
+        elif [ $TEST = "KGVerification" ]; then
+            caliperLaunchShareKGVerification
+        elif [ $TEST = "verifyProof" ]; then
+            caliperLaunchVerifyProof
+        elif [ $TEST = "shareAnonyKG" ]; then
+            caliperLaunchShareKGRecipient
+        else
+            echo "Unsupported '$MODE $SUB_MODE $TEST' command."
+        fi
     elif [ $SUB_MODE = "clear" ]; then
         clearCaliper
     else
