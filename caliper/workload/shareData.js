@@ -49,22 +49,7 @@ class ShareDataWorkload extends WorkloadModuleBase {
         await this.sutAdapter.sendRequests(shareKG);
     }
 
-    async cleanupWorkloadModule() {
-        for (let i = 0; i < ids.length; i++) {
-            const assetID = ids[i];
-            console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
-            const request = {
-                contractId: this.roundArguments.contractId,
-                contractFunction: 'DeleteSharedData',
-                invokerIdentity: 'peer0.obs0.tracenet.com',
-                contractArguments: [assetID],
-                readOnly: false
-            };
-
-            await this.sutAdapter.sendRequests(request);
-            ids = []
-        }
-    }
+    async cleanupWorkloadModule() { }
 }
 
 /**

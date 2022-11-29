@@ -1,14 +1,16 @@
 'use strict';
 
 const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
+let ids1 = []
+let ids2 = []
 
-class VerifyProofWorkload extends WorkloadModuleBase {
+class ShareAnonymizedKGWorkload extends WorkloadModuleBase {
 
     constructor() {
         super();
-        this.campaignID = Math.floor(Math.random() * 1000).toString();
-        this.KGId = Math.floor(Math.random() * 1000).toString();
         this.txIndex = 0;
+        this.campaignID = Math.floor(Math.random() * 1000).toString()
+        this.KGId = Math.floor(Math.random() * 1000).toString()
     }
 
     /**
@@ -31,9 +33,10 @@ class VerifyProofWorkload extends WorkloadModuleBase {
         await this.sutAdapter.sendRequests(createCampaign);
 
         console.log(`Worker ${this.workerIndex}: Creating anonymized KG ${this.KGId}`);
+
         const shareKG = {
             contractId: this.roundArguments.contractId,
-            contractFunction: 'ShareAnonymizedKGForVerification',
+            contractFunction: 'StoreAnonymizedKG',
             invokerIdentity: 'peer0.obs0.tracenet.com',
             contractArguments: [this.KGId, this.campaignID, "rec_id", "env", "sign"],
             readOnly: false
@@ -41,36 +44,37 @@ class VerifyProofWorkload extends WorkloadModuleBase {
 
         await this.sutAdapter.sendRequests(shareKG);
 
+        console.log(`Worker ${this.workerIndex}: Verifying the proof for the KG`);
+        const storeProof = {
+            contractId: this.roundArguments.contractId,
+            contractFunction: 'StoreProof',
+            invokerIdentity: 'peer0.obs0.tracenet.com',
+            contractArguments: [this.KGId, "equal-proof", "equal-proof"],
+            readOnly: false
+        };
+
+        await this.sutAdapter.sendRequests(storeProof);
     }
 
     async submitTransaction() {
         this.txIndex++;
         const randID = Math.floor(Math.random() * 1000)
-        const randAssetID = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
-        console.log(`Worker ${this.workerIndex}: Verifying the proof for KG ${this.KGId}`);
-        const request = {
+        const assetID1 = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
+        const assetID2 = randID.toString() + `_${this.workerIndex}_${this.txIndex}`;
+
+        console.log(`Worker ${this.workerIndex}: Share KG with recipient ${this.KGId}`);
+        const shareKG = {
             contractId: this.roundArguments.contractId,
-            contractFunction: 'CaliperVerifyProof',
+            contractFunction: 'CaliperShareAnonymizedKGWithRecipient',
             invokerIdentity: 'peer0.obs0.tracenet.com',
-            contractArguments: [this.KGId, randAssetID, "a random string of a commitment", "a random string of a commitment"],
+            contractArguments: [this.KGId, assetID1, assetID2, this.campaignID, "rec_id", "rec_env"],
             readOnly: false
         };
 
-        await this.sutAdapter.sendRequests(request);
+        await this.sutAdapter.sendRequests(shareKG);
     }
 
-    async cleanupWorkloadModule() {
-        console.log(`Worker ${this.workerIndex}: Deleting asset ${this.KGId}`);
-        const request = {
-            contractId: this.roundArguments.contractId,
-            contractFunction: 'DeleteAnonymizedKG',
-            invokerIdentity: 'peer0.obs0.tracenet.com',
-            contractArguments: [this.KGId],
-            readOnly: false
-        };
-
-        await this.sutAdapter.sendRequests(request);
-    }
+    async cleanupWorkloadModule() { }
 }
 
 /**
@@ -79,7 +83,7 @@ class VerifyProofWorkload extends WorkloadModuleBase {
  */
 
 function createWorkloadModule() {
-    return new VerifyProofWorkload();
+    return new ShareAnonymizedKGWorkload();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

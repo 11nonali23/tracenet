@@ -3,7 +3,7 @@
 const { WorkloadModuleBase } = require('@hyperledger/caliper-core');
 let ids = []
 
-class ShareKGVerificationWorkload extends WorkloadModuleBase {
+class StoreAnonymizedKGWorkload extends WorkloadModuleBase {
 
     constructor() {
         super();
@@ -40,7 +40,7 @@ class ShareKGVerificationWorkload extends WorkloadModuleBase {
         console.log(`Worker ${this.workerIndex}: Share KG for verification - Creating asset ${assetID}`);
         const shareKG = {
             contractId: this.roundArguments.contractId,
-            contractFunction: 'ShareAnonymizedKGForVerification',
+            contractFunction: 'StoreAnonymizedKG',
             invokerIdentity: 'peer0.obs0.tracenet.com',
             contractArguments: [assetID, this.campaignID, "rec_id", "env", "sign"],
             readOnly: false
@@ -49,22 +49,7 @@ class ShareKGVerificationWorkload extends WorkloadModuleBase {
         await this.sutAdapter.sendRequests(shareKG);
     }
 
-    async cleanupWorkloadModule() {
-        for (let i = 0; i < ids.length; i++) {
-            const assetID = ids[i];
-            console.log(`Worker ${this.workerIndex}: Deleting asset ${assetID}`);
-            const request = {
-                contractId: this.roundArguments.contractId,
-                contractFunction: 'DeleteAnonymizedKG',
-                invokerIdentity: 'peer0.obs0.tracenet.com',
-                contractArguments: [assetID],
-                readOnly: false
-            };
-
-            await this.sutAdapter.sendRequests(request);
-            ids = []
-        }
-    }
+    async cleanupWorkloadModule() { }
 }
 
 /**
@@ -73,7 +58,7 @@ class ShareKGVerificationWorkload extends WorkloadModuleBase {
  */
 
 function createWorkloadModule() {
-    return new ShareKGVerificationWorkload();
+    return new StoreAnonymizedKGWorkload();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

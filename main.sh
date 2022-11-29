@@ -101,13 +101,13 @@ function invokeChaincodeInit() {
     endTime="2023-05-02T15:02:40.628Z"
     fcnCall='{"function":"'CreateCampaign'","Args":["'${id}'","'C1'","'${startTime}'","'${endTime}'"]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $CAMPAIGN_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
-    sleep 5
+    sleep 2
 
     fcnCall='{"function":"'ShareData'","Args":["'D1'","'${id}'","'abcdefghi'","'lmnopqr'","'3'"]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $OWNERDATA_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
-    sleep 5
+    sleep 2
 
-    fcnCall='{"function":"'ShareAnonymizedKGForVerification'","Args":["'D1'","'${id}'","'rec1'","'lmnopqr'","'abcdefghi'"]}'
+    fcnCall='{"function":"'StoreAnonymizedKG'","Args":["'D1'","'${id}'","'rec1'","'lmnopqr'","'abcdefghi'"]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $ANONYMIZEDKG_CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
     #sleep 5
 
@@ -136,8 +136,8 @@ function retrieveEnvelope() {
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
-function verifyProof() {
-    fcnCall='{"function":"'VerifyProof'","Args":[]}'
+function storeProof() {
+    fcnCall='{"function":"'StoreProof'","Args":[]}'
     $SCRIPTS_DIR/chaincodeOperation.sh $CHAINCODE_NAME $CHANNEL_NAME "rec,obs" 1 1 $fcnCall
 }
 
@@ -153,11 +153,11 @@ function caliperLaunchShareOwnerData() {
     $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_SHAREDATA_CONFIG
 }
 
-function caliperLaunchShareKGVerification() {
+function caliperLaunchStoreAnonymizedKG() {
     $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_KGVERIFICATION_CONFIG
 }
 
-function caliperLaunchVerifyProof() {
+function caliperLaunchStoreProof() {
     $SCRIPTS_DIR/caliper.sh "launch" $CALIPER_VERSION $FABRIC_VERSION $CALIPER_WORKSPACE $CALIPER_NETWORK_CONFIG $CALIPER_CALIPERPROOF_CONFIG
 }
 
@@ -240,7 +240,7 @@ elif [ $MODE = "chaincode" ]; then
     elif [ $SUB_MODE = "retrieveEnvelope" ]; then
         retrieveEnvelope
     elif [ $SUB_MODE = "verify-proof" ]; then
-        verifyProof
+        storeProof
     elif [ $SUB_MODE = "reinstall" ]; then
         packageChaincode
         installChaincode
@@ -260,10 +260,10 @@ elif [ $MODE = "caliper" ]; then
             caliperLaunchCampaign
         elif [ $TEST = "shareData" ]; then
             caliperLaunchShareOwnerData
-        elif [ $TEST = "KGVerification" ]; then
-            caliperLaunchShareKGVerification
-        elif [ $TEST = "verifyProof" ]; then
-            caliperLaunchVerifyProof
+        elif [ $TEST = "storeAnonymizedKG" ]; then
+            caliperLaunchStoreAnonymizedKG
+        elif [ $TEST = "storeProof" ]; then
+            caliperLaunchStoreProof
         elif [ $TEST = "shareAnonyKG" ]; then
             caliperLaunchShareKGRecipient
         else

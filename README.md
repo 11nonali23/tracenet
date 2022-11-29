@@ -39,7 +39,7 @@ The framework used for the tests is Caliper. Test are run after initializing the
 ./main.sh caliper init
 ./main.sh caliper launch campaign
 ./main.sh caliper launch shareData
-./main.sh caliper launch KGVerification
-./main.sh caliper launch verifyProof
+./main.sh caliper launch storeAnonymizedKG
+./main.sh caliper launch storeProof
 ./main.sh caliper launch shareAnonyKG
 ```

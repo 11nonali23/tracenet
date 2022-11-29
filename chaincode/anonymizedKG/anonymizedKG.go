@@ -20,7 +20,7 @@ type AnonymizedKG struct {
     Shared			    bool	`json:"shared"`
 }
 
-func (s *AnonymizedKGSmartContract) ShareAnonymizedKGForVerification(ctx contractapi.TransactionContextInterface, id, campaignId, recipientId, rollupEnvelope, signature string) error {
+func (s *AnonymizedKGSmartContract) StoreAnonymizedKG(ctx contractapi.TransactionContextInterface, id, campaignId, recipientId, rollupEnvelope, signature string) error {
     idExists, err := s.anonymizedKGExists(ctx, id)
     if err != nil {
         return err
@@ -62,40 +62,7 @@ func (s *AnonymizedKGSmartContract) ShareAnonymizedKGForVerification(ctx contrac
 	return nil
 }
 
-func (s *AnonymizedKGSmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, KGId, campaignId, recipientId, recipientEnvelope string) error {
-    campaignExists, _ := s.invokeQueryCampaign(ctx, campaignId)
-    if campaignExists == false {
-        return fmt.Errorf("Campaign %s does not exist", campaignId)
-    }
-
-    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
-	if err != nil {
-		return fmt.Errorf("Anonymized KG %s does not exist", KGId)
-	}
-    if anonymizedKG.Verified != true {
-        return fmt.Errorf("Anonymized KG %s is not verified by the rollup server", KGId)
-    }
-    if anonymizedKG.Shared != true {
-        return fmt.Errorf("Anonymized KG %s has been already shared", KGId)
-    }
-    if recipientId != anonymizedKG.RecipientId {
-        return fmt.Errorf("Anonymized KG %s has the wrong recipient id %s", KGId, recipientId)
-    }
-    // Todo: perform a query to see the recipients that already had access instead
-	anonymizedKG.RecipientEnvelope = recipientEnvelope
-    anonymizedKG.Shared = true
-
-    anonymizedKGJSON, err := json.Marshal(anonymizedKG)
-    if err != nil {
-        return err
-    }
-
-    ctx.GetStub().PutState(KGId, anonymizedKGJSON)
-
-	return nil
-}
-
-func (s *AnonymizedKGSmartContract) VerifyProof(ctx contractapi.TransactionContextInterface, KGId, userCommit, rollupCommit string) (bool, error) {
+func (s *AnonymizedKGSmartContract) StoreProof(ctx contractapi.TransactionContextInterface, KGId, userCommit, rollupCommit string) (bool, error) {
     idExists, err := s.anonymizedKGExists(ctx, KGId)
     if err != nil {
         return false, err
@@ -116,6 +83,39 @@ func (s *AnonymizedKGSmartContract) VerifyProof(ctx contractapi.TransactionConte
     }
 
 	return rollupCommit == userCommit, ctx.GetStub().PutState(KGId, anonymizedKGJSON)
+}
+
+func (s *AnonymizedKGSmartContract) ShareAnonymizedKGWithRecipient(ctx contractapi.TransactionContextInterface, KGId, campaignId, recipientId, recipientEnvelope string) error {
+    campaignExists, _ := s.invokeQueryCampaign(ctx, campaignId)
+    if campaignExists == false {
+        return fmt.Errorf("Campaign %s does not exist", campaignId)
+    }
+
+    anonymizedKG, err := s.getAnonymizedKG(ctx, KGId)
+	if err != nil {
+		return fmt.Errorf("Anonymized KG %s does not exist", KGId)
+	}
+    if anonymizedKG.Verified != true {
+        return fmt.Errorf("Anonymized KG %s is not verified by the rollup server", KGId)
+    }
+    if anonymizedKG.Shared != true {
+        return fmt.Errorf("Anonymized KG %s has been already shared", KGId)
+    }
+    if recipientId != anonymizedKG.RecipientId {
+        return fmt.Errorf("Anonymized KG %s has the wrong recipient id %s", KGId, recipientId)
+    }
+
+	anonymizedKG.RecipientEnvelope = recipientEnvelope
+    anonymizedKG.Shared = true
+
+    anonymizedKGJSON, err := json.Marshal(anonymizedKG)
+    if err != nil {
+        return err
+    }
+
+    ctx.GetStub().PutState(KGId, anonymizedKGJSON)
+
+	return nil
 }
 
 func (s *AnonymizedKGSmartContract) DeleteAnonymizedKG(ctx contractapi.TransactionContextInterface, id string) error {
@@ -178,11 +178,15 @@ func (s *AnonymizedKGSmartContract) invokeQueryCampaign(ctx contractapi.Transact
     return true, nil
 }
 
-// Only for caliper testing
-// When updating an asset caliper gives MVCC conflict for race condition
-// For a similar comparison I will do an query and then write on a new dummy asset id
 
-func (s *AnonymizedKGSmartContract) CaliperVerifyProof(ctx contractapi.TransactionContextInterface, KGId, dummyId, userCommit, rollupCommit string) (bool, error) {
+
+/*----------------------------------------------------------------------------------------------------------------------------
+// Only for caliper testing                                                                                                   |
+// When updating an asset caliper gives MVCC conflict for race condition, because in the tests I always update the same asset |
+// For an equal comparison I will do an query and then write on a new dummy asset id                                         |
+//----------------------------------------------------------------------------------------------------------------------------*/
+
+func (s *AnonymizedKGSmartContract) CaliperStoreProof(ctx contractapi.TransactionContextInterface, KGId, dummyId, userCommit, rollupCommit string) (bool, error) {
     idExists, err := s.anonymizedKGExists(ctx, KGId)
     if err != nil {
         return false, err
